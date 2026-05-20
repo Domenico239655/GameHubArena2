@@ -1,10 +1,12 @@
 package com.gamehub.arena.dao;
 
 import com.gamehub.arena.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface UserDao {
-    User save(User user);
+@Repository
+public interface UserDao extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 }
