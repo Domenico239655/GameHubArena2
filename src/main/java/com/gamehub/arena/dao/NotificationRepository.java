@@ -1,4 +1,4 @@
-package com.gamehub.arena.repository;
+package com.gamehub.arena.dao;
 
 import com.gamehub.arena.model.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;

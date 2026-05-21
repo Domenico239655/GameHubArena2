@@ -1,6 +1,6 @@
 package com.gamehub.arena.serviceImpl;
 
-import com.gamehub.arena.dao.UserDao;
+import com.gamehub.arena.dao.UserRepository;
 import com.gamehub.arena.dto.RegisterRequest;
 import com.gamehub.arena.model.Role;
 import com.gamehub.arena.model.User;
@@ -13,10 +13,10 @@ import java.util.Optional;
 @Repository
 @Service
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
+    private final UserRepository userDao;
     private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserDao userDao, PasswordEncoder passwordEncoder){
+    public UserServiceImpl(UserRepository userDao, PasswordEncoder passwordEncoder){
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
     }

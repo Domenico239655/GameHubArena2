@@ -1,18 +1,17 @@
 package com.gamehub.arena.security;
 
-import com.gamehub.arena.dao.UserDao;
+import com.gamehub.arena.dao.UserRepository;
 import com.gamehub.arena.model.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 @Service
 
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserDao userDao;
-    public CustomUserDetailsService(UserDao userDao){
+    private final UserRepository userDao;
+    public CustomUserDetailsService(UserRepository userDao){
         this.userDao = userDao;
     }
 
