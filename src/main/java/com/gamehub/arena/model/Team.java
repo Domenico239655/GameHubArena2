@@ -19,7 +19,7 @@ public class Team {
     private User owner;
 
     @OneToMany
-    private List<User> menbers = new ArrayList<>();
+    private List<User> members = new ArrayList<>();
 
     public Team(){}
 
@@ -47,11 +47,11 @@ public class Team {
         this.owner = owner;
     }
 
-    public List<User> getMenbers() {
-        return menbers;
+    public List<User> getMembers() {
+        return members;
     }
 
-    public void setMenbers(List<User> menbers) {
-        this.menbers = menbers;
+    public void setMembers(List<User> menbers) {
+        this.members = menbers;
     }
 }

@@ -2,6 +2,7 @@ package com.gamehub.arena.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -17,7 +18,10 @@ public class Message {
     private User receiver;
 
     private String content;
-    private Date timestamp;
+    private LocalDateTime timestamp;
+
+    @ManyToOne
+    private Tournament tournament;
 
     public Message(){}
 
@@ -53,11 +57,19 @@ public class Message {
         this.content = content;
     }
 
-    public Date getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Date timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 }

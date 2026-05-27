@@ -16,7 +16,10 @@ public class Review {
     @ManyToOne
     private Game game;
 
-    private int vote;
+    @ManyToOne
+    private Tournament tournament;
+
+    private int rating;
     private String comment;
 
     public Review(){}
@@ -45,12 +48,12 @@ public class Review {
         this.game = game;
     }
 
-    public int getVote() {
-        return vote;
+    public int getRating() {
+        return rating;
     }
 
-    public void setVote(int vote) {
-        this.vote = vote;
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 
     public String getComment() {
@@ -59,5 +62,13 @@ public class Review {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public Tournament getTournament() {
+        return tournament;
+    }
+
+    public void setTournament(Tournament tournament) {
+        this.tournament = tournament;
     }
 }

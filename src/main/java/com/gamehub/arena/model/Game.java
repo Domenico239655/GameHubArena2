@@ -15,7 +15,9 @@ public class Game {
     private Double rating;
 
     private String rawgId;
-    public Game(){}
+
+    public Game() {
+    }
 
     public Long getId() {
         return id;

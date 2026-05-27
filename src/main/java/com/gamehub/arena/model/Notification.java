@@ -21,6 +21,7 @@ public class Notification {
     private boolean read;
 
     private Date date;
+    private Long relatedId;
 
     public Notification(){}
 
@@ -70,5 +71,13 @@ public class Notification {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Long getRelatedId() {
+        return relatedId;
+    }
+
+    public void setRelatedId(Long relatedId) {
+        this.relatedId = relatedId;
     }
 }

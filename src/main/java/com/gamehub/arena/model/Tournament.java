@@ -2,6 +2,7 @@ package com.gamehub.arena.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,13 +21,13 @@ public class Tournament {
     private Game game;
 
     private String status;
-    private Date date;
+    private LocalDate date;
 
     @ManyToOne
     private User organizer;
 
     @ManyToMany
-    private List<User> partecipants = new ArrayList<>();
+    private List<User> participants = new ArrayList<>();
 
     public Tournament(){}
 
@@ -62,11 +63,11 @@ public class Tournament {
         this.status = status;
     }
 
-    public Date getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
@@ -78,11 +79,11 @@ public class Tournament {
         this.organizer = organizer;
     }
 
-    public List<User> getPartecipants() {
-        return partecipants;
+    public List<User> getParticipants() {
+        return participants;
     }
 
-    public void setPartecipants(List<User> partecipants) {
-        this.partecipants = partecipants;
+    public void setParticipants(List<User> partecipants) {
+        this.participants = partecipants;
     }
 }

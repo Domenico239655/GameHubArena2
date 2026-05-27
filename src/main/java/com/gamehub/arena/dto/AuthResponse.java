@@ -5,8 +5,8 @@ import lombok.Data;
 import org.springframework.stereotype.Repository;
 
 @Data
-@AllArgsConstructor
-
 public class AuthResponse {
     private String token;
+    private String username;
+    private String role;
 }
