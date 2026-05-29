@@ -69,6 +69,7 @@ public class GameServiceImpl implements GameService {
         dto.setGenere(game.getGenere());
         dto.setCoverUrl(game.getCoverUrl());
         dto.setRating(game.getRating());
+        dto.setRawgId(game.getRawgId());
         return dto;
     }
 
