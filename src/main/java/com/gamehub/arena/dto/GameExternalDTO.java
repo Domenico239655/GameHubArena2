@@ -11,5 +11,6 @@ public class GameExternalDTO {
     private String released;
     private String genere;
     private String trailerUrl;
+    private String slug;
     
 }

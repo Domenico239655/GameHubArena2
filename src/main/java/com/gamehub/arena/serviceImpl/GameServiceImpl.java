@@ -35,6 +35,8 @@ public class GameServiceImpl implements GameService {
             game.setCoverUrl(rawg.getBackgroundImage());
             game.setRating(rawg.getRating());
             game.setGenere(dto.getGenere());
+
+            game.setRawgId(rawg.getSlug());
         }
         return repo.save(game);
     }
