@@ -8,6 +8,7 @@ import com.gamehub.arena.dto.NotificationCreateDTO;
 import com.gamehub.arena.dto.TournamentCreateDTO;
 import com.gamehub.arena.dto.TournamentResponseDTO;
 import com.gamehub.arena.model.*;
+import com.gamehub.arena.service.GameService;
 import com.gamehub.arena.service.NotificationService;
 import com.gamehub.arena.service.TournamentService;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,15 @@ public class TournamentServiceImpl implements TournamentService {
     private final GameRepository gameRepo;
     private final NotificationService notificationService;
     private final MatchRepository matchRepo;
+    private final GameService gameService;
 
-    public TournamentServiceImpl(TournamentRepository repo, UserRepository userRepo, GameRepository gameRepo, NotificationService notificationService, MatchRepository matchRepo){
+    public TournamentServiceImpl(TournamentRepository repo, UserRepository userRepo, GameRepository gameRepo, NotificationService notificationService, MatchRepository matchRepo, GameService gameService){
         this.repo = repo;
         this.userRepo = userRepo;
         this.gameRepo = gameRepo;
         this.notificationService = notificationService;
         this.matchRepo = matchRepo;
+        this.gameService = gameService;
     }
 
     @Override
@@ -84,7 +87,7 @@ public class TournamentServiceImpl implements TournamentService {
         TournamentResponseDTO dto = new TournamentResponseDTO();
         dto.setId(t.getId());
         dto.setTitle(t.getTitle());
-        dto.setGame(t.getGame().getTitle());
+        dto.setGame(gameService.toDTO(t.getGame()));
         dto.setDate(t.getDate());
         dto.setParticipantsCount(t.getParticipants().size());
         return dto;

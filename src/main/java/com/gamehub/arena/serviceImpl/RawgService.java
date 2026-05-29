@@ -7,6 +7,9 @@ import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,23 +25,71 @@ public class RawgService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public List<GameExternalDTO> searchGames(String query){
+    public List<GameExternalDTO> searchGames(String query) {
         String url = apiUrl + "/games?search=" + query + "&key=" + apiKey;
         String response = restTemplate.getForObject(url, String.class);
         List<GameExternalDTO> results = new ArrayList<>();
-        try{
+
+        try {
             JsonNode root = mapper.readTree(response).get("results");
-            for(JsonNode node : root){
+
+            for (JsonNode node : root) {
                 GameExternalDTO dto = new GameExternalDTO();
                 dto.setTitle(node.get("name").asText());
-                dto.setBackgroundImage(node.get("background_image") != null ? node.get("background_image").asText() : null);
-                dto.setRating(node.get("rating").asDouble());
-                dto.setReleased(node.get("released").asText());
+
+                // Le API restituiscono l'URL assoluto, perfetto per il frontend!
+                dto.setBackgroundImage(node.has("background_image") && !node.get("background_image").isNull()
+                        ? node.get("background_image").asText() : null);
+
+                dto.setRating(node.has("rating") ? node.get("rating").asDouble() : 0.0);
+                dto.setReleased(node.has("released") && !node.get("released").isNull()
+                        ? node.get("released").asText() : "N/D");
+
+                // RISOLTO: Modificato "genere" in "genres" (come previsto dall'API)
+                if (node.has("genres") && node.get("genres").size() > 0) {
+                    dto.setGenere(node.get("genres").get(0).get("name").asText());
+                } else {
+                    dto.setGenere("Sconosciuto");
+                }
+
+                int gameId = node.get("id").asInt();
+
+                // Passiamo anche il titolo per generare il link YouTube di emergenza
+                String trailerUrl = fetchTrailer(gameId, dto.getTitle());
+                dto.setTrailerUrl(trailerUrl);
+
                 results.add(dto);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
+            System.err.println("Errore parsing RAWG API: " + e.getMessage());
             throw new RuntimeException("Errore parsing RAWG API");
         }
         return results;
+    }
+
+    private String fetchTrailer(int gameId, String gameTitle) {
+        try {
+            String url = apiUrl + "/games/" + gameId + "/movies?key=" + apiKey;
+            String response = restTemplate.getForObject(url, String.class);
+
+            JsonNode root = mapper.readTree(response).get("results");
+
+            if (root != null && root.size() > 0) {
+                JsonNode movie = root.get(0);
+                if (movie.has("data") && movie.get("data").has("480")) {
+                    return movie.get("data").get("480").asText();
+                }
+            }
+
+            String encodedTitle = URLEncoder.encode(gameTitle + " trailer ufficiale", StandardCharsets.UTF_8.toString());
+            return "https://www.youtube.com/results?search_query=" + encodedTitle;
+
+        } catch (Exception e) {
+            try {
+                return "https://www.youtube.com/results?search_query=" + URLEncoder.encode(gameTitle + " trailer", "UTF-8");
+            } catch (Exception ex) {
+                return null;
+            }
+        }
     }
 }

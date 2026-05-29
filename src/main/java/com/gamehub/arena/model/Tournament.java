@@ -16,6 +16,7 @@ public class Tournament {
     private Long id;
 
     private String title;
+    private String description;
 
     @ManyToOne
     private Game game;
@@ -85,5 +86,13 @@ public class Tournament {
 
     public void setParticipants(List<User> partecipants) {
         this.participants = partecipants;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

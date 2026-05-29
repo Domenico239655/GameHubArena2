@@ -2,6 +2,7 @@ package com.gamehub.arena.serviceImpl;
 
 import com.gamehub.arena.dao.GameRepository;
 import com.gamehub.arena.dto.GameCreateDTO;
+import com.gamehub.arena.dto.GameExternalDTO;
 import com.gamehub.arena.dto.GameResponseDTO;
 import com.gamehub.arena.model.Game;
 import com.gamehub.arena.service.GameService;
@@ -14,10 +15,28 @@ import java.util.Optional;
 public class GameServiceImpl implements GameService {
 
     private final GameRepository repo;
+    private final RawgService rawgService;
 
 
-    public GameServiceImpl(GameRepository repo){
+    public GameServiceImpl(GameRepository repo, RawgService rawgService){
         this.repo = repo;
+        this.rawgService = rawgService;
+    }
+
+
+    public Game createEntity(GameCreateDTO dto, String title){
+        List<GameExternalDTO> results = rawgService.searchGames(title);
+        GameExternalDTO rawg = results.isEmpty() ? null : results.get(0);
+
+        Game game = fromDTO(dto);
+        game.setTitle(title);
+
+        if(rawg != null){
+            game.setCoverUrl(rawg.getBackgroundImage());
+            game.setRating(rawg.getRating());
+            game.setGenere(dto.getGenere());
+        }
+        return repo.save(game);
     }
 
     @Override
@@ -49,7 +68,7 @@ public class GameServiceImpl implements GameService {
         dto.setTitle(game.getTitle());
         dto.setGenere(game.getGenere());
         dto.setCoverUrl(game.getCoverUrl());
-        dto.setReating(game.getRating());
+        dto.setRating(game.getRating());
         return dto;
     }
 

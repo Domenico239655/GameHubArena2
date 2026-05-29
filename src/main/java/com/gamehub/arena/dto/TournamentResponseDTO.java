@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class TournamentResponseDTO {
     private Long id;
     private String title;
-    private String game;
+    private GameResponseDTO game;
     private LocalDate date;
     private int participantsCount;
 

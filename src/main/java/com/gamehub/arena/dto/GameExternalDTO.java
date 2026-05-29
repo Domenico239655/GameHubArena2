@@ -9,5 +9,7 @@ public class GameExternalDTO {
     private String backgroundImage;
     private double rating;
     private String released;
+    private String genere;
+    private String trailerUrl;
     
 }

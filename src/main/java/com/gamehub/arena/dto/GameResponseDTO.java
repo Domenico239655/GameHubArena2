@@ -9,6 +9,6 @@ public class GameResponseDTO {
     private String title;
     private String genere;
     private String coverUrl;
-    private double reating;
+    private double rating;
 
 }
