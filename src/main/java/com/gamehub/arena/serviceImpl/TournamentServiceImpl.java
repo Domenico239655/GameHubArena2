@@ -13,6 +13,7 @@ import com.gamehub.arena.service.NotificationService;
 import com.gamehub.arena.service.TournamentService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,19 +123,23 @@ public class TournamentServiceImpl implements TournamentService {
     public void generateBracket(Long tournamentId) {
         Tournament t = repo.findById(tournamentId)
                 .orElseThrow(()-> new RuntimeException("Torneo non trovato!"));
-        List<User> players = t.getParticipants();
+        List<User> players = new ArrayList<>(t.getParticipants());
 
         int size = players.size();
+        if (size == 0) {
+            throw new RuntimeException("Nessun partecipante iscritto al torneo!");
+        }
+
         int nextPowerOfTwo = 1;
         while(nextPowerOfTwo < size) nextPowerOfTwo*=2;
         while(players.size() < nextPowerOfTwo){
             players.add(null);
         }
-        for(int i = 0; i < players.size(); i++){
+        for(int i = 0; i < players.size(); i += 2){
             Match m = new Match();
             m.setTournament(t);
             m.setPlayer1(players.get(i));
-            m.setPlayer2(players.get(i + 2));
+            m.setPlayer2(players.get(i + 1));
             m.setRoundNumber(1);
             m.setStato(MatchStatus.PENDING);
 

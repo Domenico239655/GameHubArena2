@@ -51,9 +51,9 @@ public class MessageWebSocketController {
     }
 
     @MessageMapping("/chat/{tournamentId}/join")
-    public void joinChat(@DestinationVariable Long tournametId, MessageDTO incoming){
-        onlineUsers.userJoined(tournametId, incoming.getSender());
-        messagingTemplate.convertAndSend("/topic/chat/" + tournametId + "/online",onlineUsers.getOnlineUsers(tournametId)
+    public void joinChat(@DestinationVariable Long tournamentId, MessageDTO incoming){
+        onlineUsers.userJoined(tournamentId, incoming.getSender());
+        messagingTemplate.convertAndSend("/topic/chat/" + tournamentId + "/online", onlineUsers.getOnlineUsers(tournamentId)
         );
     }
 
@@ -61,7 +61,7 @@ public class MessageWebSocketController {
     public void leaveChat(@DestinationVariable Long tournamentId, MessageDTO incoming){
         onlineUsers.userLeft(tournamentId, incoming.getSender());
         messagingTemplate.convertAndSend(
-                "/topic/chat" + tournamentId + "/online", onlineUsers.getOnlineUsers(tournamentId)
+                "/topic/chat/" + tournamentId + "/online", onlineUsers.getOnlineUsers(tournamentId)
         );
 
     }

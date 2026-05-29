@@ -36,9 +36,12 @@ public class NotificationProxy implements NotificationService {
         NotificationDTO wsDto = new NotificationDTO();
         wsDto.setType(saved.getType());
         wsDto.setMessage(saved.getMessage());
-        wsDto.setUserId(saved.getId());
+        wsDto.setUserId(saved.getUserId());
         wsDto.setRelatedId(saved.getRelatedId());
-        return real.send(dto);
+        
+        wsController.sendNotification(saved.getUserId(), wsDto);
+        
+        return saved;
     }
 
     @Override

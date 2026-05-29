@@ -150,12 +150,23 @@ public class MatchServiceImpl implements MatchService {
     private void advanceWinner(Match match, User winner){
         int nextRound = match.getRoundNumber() + 1;
 
-        int matchIndex = match.getId().intValue();
-        int nextMatchIndex = matchIndex/ 2;
+        List<Match> currentRoundMatches = repo.findByTournamentIdOrderByRoundNumberAsc(match.getTournament().getId())
+                .stream()
+                .filter(m -> m.getRoundNumber().equals(match.getRoundNumber()))
+                .sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
+                .toList();
+
+        int matchIndex = currentRoundMatches.indexOf(match);
+        if (matchIndex == -1) {
+            matchIndex = 0;
+        }
+
+        int nextMatchIndex = matchIndex / 2;
 
         List<Match> nextRoundMatches = repo.findByTournamentIdOrderByRoundNumberAsc(match.getTournament().getId())
                 .stream()
                 .filter(m -> m.getRoundNumber() == nextRound)
+                .sorted((m1, m2) -> m1.getId().compareTo(m2.getId()))
                 .toList();
 
         Match nextMatch;
@@ -164,6 +175,7 @@ public class MatchServiceImpl implements MatchService {
             nextMatch.setTournament(match.getTournament());
             nextMatch.setRoundNumber(nextRound);
             nextMatch.setStato(MatchStatus.PENDING);
+            nextMatch = repo.save(nextMatch);
         }else{
             nextMatch = nextRoundMatches.get(nextMatchIndex);
         }

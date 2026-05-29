@@ -35,8 +35,8 @@ public class AuthController {
         UserResponseDTO user = userService.register(dto);
 
         UserDetails userDetail = new org.springframework.security.core.userdetails.User(user.getUsername(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority(user.getRole()))
+                dto.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole()))
         );
 
         String token = jwtUtil.generateToken(userDetail);

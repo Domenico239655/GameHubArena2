@@ -29,8 +29,8 @@ public class EloServiceImpl implements EloService {
         int score1 = match.getScorePlayer1();
         int score2 = match.getScorePlayer2();
 
-        double S1 = score1 > score2 ? 1 : 0;
-        double S2 = score2 > score1 ? 1 : 0;
+        double S1 = score1 > score2 ? 1.0 : (score1 == score2 ? 0.5 : 0.0);
+        double S2 = score2 > score1 ? 1.0 : (score2 == score1 ? 0.5 : 0.0);
 
         double E1 = 1.0 / (1 + Math.pow(10, (elo2 - elo1) / 400.0));
         double E2 = 1.0 / (1 + Math.pow(10, (elo1 - elo2) / 400.0));

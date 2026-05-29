@@ -50,7 +50,6 @@ public class DataInitializer implements CommandLineRunner {
                     game.setCoverUrl(rawgGame.getBackgroundImage());
                     game.setGenere(rawgGame.getGenere());
                     game.setRating(rawgGame.getRating());
-                    game.setCoverUrl(rawgGame.getTrailerUrl());
 
                     game = gameRepository.save(game);
 
