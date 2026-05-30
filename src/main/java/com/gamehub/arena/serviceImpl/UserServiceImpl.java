@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-@Repository
+
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userDao;
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService {
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setRole(Role.PLAYER);
+        user.setRole(Role.valueOf(dto.getRole().toUpperCase()));
         user.setRank(0);
 
         userDao.save(user);

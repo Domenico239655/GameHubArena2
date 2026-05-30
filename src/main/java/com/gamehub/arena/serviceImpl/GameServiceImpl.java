@@ -43,8 +43,7 @@ public class GameServiceImpl implements GameService {
 
     @Override
     public GameResponseDTO create(GameCreateDTO dto){
-        Game game = fromDTO(dto);
-        repo.save(game);
+        Game game = createEntity(dto, dto.getTitle());
         return toDTO(game);
     }
 
