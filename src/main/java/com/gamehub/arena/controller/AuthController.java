@@ -4,6 +4,7 @@ import com.gamehub.arena.dto.*;
 import com.gamehub.arena.model.User;
 import com.gamehub.arena.security.JwtUtil;
 import com.gamehub.arena.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -50,9 +51,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody UserLoginDTO dto) {
+    public ResponseEntity<?> login(@RequestBody UserLoginDTO dto) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
+
+        String authority = userDetails.getAuthorities().iterator().next().getAuthority();
+
+        if ("ROLE_BANNED".equals(authority) || "BANNED".equals(authority)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(java.util.Map.of("errore", "ACCOUNT_BANNED"));
+        }
         String token = jwtUtil.generateToken(userDetails);
 
         AuthResponse res = new AuthResponse();

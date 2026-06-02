@@ -13,3 +13,11 @@
     -USERNAME:    GIOCATORE
     -EMAIL:       topPlayer_06@gmail.com
     -PASSWORD:    SonoPlayer.2006
+
+4. PROFILO ORGANIZZATORE:
+    -USERNAME: ORGANIZZATORE2
+    -PASSWORD: Organizzatore.2
+
+5. PROFILO PLAYER3:
+    -USERNAME: PLAYER3
+    -PASSWORD: Player.3
