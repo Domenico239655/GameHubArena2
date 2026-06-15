@@ -57,7 +57,13 @@ public class UserServiceImpl implements UserService {
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
-        dto.setRole(user.getRole().name());
+
+        
+        if (user.getRole() != null) {
+            dto.setRole(user.getRole().name());
+        } else {
+            dto.setRole("ROLE_PLAYER");
+        }
         dto.setRank(user.getRank());
         return dto;
     }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -25,6 +26,13 @@ public class UserController {
         this.service = service;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @GetMapping
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(service::toDTO)
+                .toList();
     }
 
     @GetMapping("/{username}")

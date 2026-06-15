@@ -20,6 +20,8 @@ public class Notification {
     private String type;
     private boolean read;
 
+    private String senderUsername;
+
     private Date date;
     private Long relatedId;
 
@@ -79,5 +81,13 @@ public class Notification {
 
     public void setRelatedId(Long relatedId) {
         this.relatedId = relatedId;
+    }
+
+    public String getSenderUsername() {
+        return senderUsername;
+    }
+
+    public void setSenderUsername(String senderUsername) {
+        this.senderUsername = senderUsername;
     }
 }

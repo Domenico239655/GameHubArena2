@@ -34,6 +34,8 @@ public class NotificationServiceImpl implements NotificationService {
         n.setRead(false);
         n.setType(dto.getType());
         n.setRelatedId(dto.getRelatedId());
+        n.setSenderUsername(dto.getSenderUsername());
+        n.setDate(new java.util.Date());
 
         repo.save(n);
         return toDTO(n);
@@ -63,16 +65,23 @@ public class NotificationServiceImpl implements NotificationService {
         dto.setRead(n.isRead());
         dto.setType(n.getType());
         dto.setUsername(n.getUser().getUsername());
-
         dto.setUserId(n.getUser().getId());
         dto.setRelatedId(n.getRelatedId());
-
-
+        dto.setSenderUsername(n.getSenderUsername());
+        if (n.getDate() != null) {
+            dto.setDate(n.getDate().toString());
+        }
         return dto;
     }
 
     @Override
     public void sendNotification(Notification notification) {
-        repo.save(notification);
-    }
+        if (notification.getSenderUsername() == null || notification.getSenderUsername().trim().isEmpty()) {
+            notification.setSenderUsername("Sistema");
+        }
+        if (notification.getDate() == null) {
+            notification.setDate(new java.util.Date());
+        }
+
+        repo.save(notification);}
 }
