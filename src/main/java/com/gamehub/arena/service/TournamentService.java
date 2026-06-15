@@ -18,4 +18,6 @@ public interface TournamentService {
     TournamentResponseDTO join(Long tournamentId, Long userId);
     List<User> getParticipants(Long tournamentId);
     void generateBracket(Long tournamentId);
+
+    void addRating(Long tournamentId, Long userId, int score);
 }

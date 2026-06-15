@@ -21,8 +21,15 @@ public class Tournament {
     @ManyToOne
     private Game game;
 
+
     private String status;
-    private LocalDate date;
+    //private LocalDate date;
+
+    @Column(name = "registration_deadline")
+    private LocalDate registrationDeadline;
+
+    @Column(name = "rating")
+    private Double rating = 0.0;
 
     @ManyToOne
     private User organizer;
@@ -64,13 +71,13 @@ public class Tournament {
         this.status = status;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
+//    public LocalDate getDate() {
+//        return date;
+//    }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+//    public void setDate(LocalDate date) {
+//        this.date = date;
+//    }
 
     public User getOrganizer() {
         return organizer;
@@ -94,5 +101,19 @@ public class Tournament {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public LocalDate getRegistrationDeadline() {
+        return registrationDeadline;
+    }
+
+    public void setRegistrationDeadline(LocalDate registrationDeadline) {this.registrationDeadline = registrationDeadline;}
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
     }
 }

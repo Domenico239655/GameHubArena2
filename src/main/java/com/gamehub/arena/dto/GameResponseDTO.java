@@ -11,5 +11,6 @@ public class GameResponseDTO {
     private String coverUrl;
     private double rating;
     private String rawgId;
+    private String description;
 
 }

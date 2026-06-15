@@ -37,6 +37,7 @@ public class GameServiceImpl implements GameService {
             game.setGenere(dto.getGenere());
 
             game.setRawgId(rawg.getSlug());
+            game.setDescription(dto.getDescription());
         }
         return repo.save(game);
     }
@@ -71,6 +72,7 @@ public class GameServiceImpl implements GameService {
         dto.setCoverUrl(game.getCoverUrl());
         dto.setRating(game.getRating());
         dto.setRawgId(game.getRawgId());
+        dto.setDescription(game.getDescription());
         return dto;
     }
 
@@ -79,6 +81,7 @@ public class GameServiceImpl implements GameService {
         Game game = new Game();
         game.setTitle(dto.getTitle());
         game.setGenere(dto.getGenere());
+        game.setDescription(dto.getDescription());
         return game;
     }
 

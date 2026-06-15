@@ -15,6 +15,7 @@ public class Game {
     private Double rating;
 
     private String rawgId;
+    private String description;
 
     public Game() {
     }
@@ -66,4 +67,9 @@ public class Game {
     public void setRawgId(String rawgId) {
         this.rawgId = rawgId;
     }
+
+    public String getDescription() {return description;}
+
+    public void setDescription(String description) {this.description = description;}
+
 }

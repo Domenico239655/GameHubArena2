@@ -1,18 +1,14 @@
 package com.gamehub.arena.serviceImpl;
 
-import com.gamehub.arena.dao.GameRepository;
-import com.gamehub.arena.dao.MatchRepository;
-import com.gamehub.arena.dao.TournamentRepository;
-import com.gamehub.arena.dao.UserRepository;
-import com.gamehub.arena.dto.NotificationCreateDTO;
-import com.gamehub.arena.dto.TournamentCreateDTO;
-import com.gamehub.arena.dto.TournamentResponseDTO;
+import com.gamehub.arena.dao.*;
+import com.gamehub.arena.dto.*;
 import com.gamehub.arena.model.*;
 import com.gamehub.arena.service.GameService;
 import com.gamehub.arena.service.NotificationService;
 import com.gamehub.arena.service.TournamentService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,14 +21,16 @@ public class TournamentServiceImpl implements TournamentService {
     private final NotificationService notificationService;
     private final MatchRepository matchRepo;
     private final GameService gameService;
+    private final TournamentRatingRepository ratingRepo;
 
-    public TournamentServiceImpl(TournamentRepository repo, UserRepository userRepo, GameRepository gameRepo, NotificationService notificationService, MatchRepository matchRepo, GameService gameService){
+    public TournamentServiceImpl(TournamentRepository repo, UserRepository userRepo, GameRepository gameRepo, NotificationService notificationService, MatchRepository matchRepo, GameService gameService, TournamentRatingRepository ratingRepo){
         this.repo = repo;
         this.userRepo = userRepo;
         this.gameRepo = gameRepo;
         this.notificationService = notificationService;
         this.matchRepo = matchRepo;
         this.gameService = gameService;
+        this.ratingRepo = ratingRepo;
     }
 
     @Override
@@ -89,8 +87,35 @@ public class TournamentServiceImpl implements TournamentService {
         dto.setId(t.getId());
         dto.setTitle(t.getTitle());
         dto.setGame(gameService.toDTO(t.getGame()));
-        dto.setDate(t.getDate());
         dto.setParticipantsCount(t.getParticipants().size());
+        dto.setDescription(t.getDescription());
+        if (t.getParticipants() != null) {
+            dto.setParticipantsCount(t.getParticipants().size());
+
+            // USIAMO IL NUOVO TeamResponseDTO
+            List<TeamResponseDTO> mappedTeams = t.getParticipants().stream().map(user -> {
+                TeamResponseDTO teamDto = new TeamResponseDTO();
+                teamDto.setId(user.getId());
+                teamDto.setName(user.getUsername());
+                teamDto.setScore(0); // Score di default
+                return teamDto;
+            }).toList();
+
+            dto.setTeams(mappedTeams);
+        } else {
+            dto.setParticipantsCount(0);
+            dto.setTeams(new ArrayList<>());
+        }
+        if (t.getGame() != null) {
+            dto.setGameImageUrl(t.getGame().getCoverUrl());
+        }
+        if (t.getRegistrationDeadline() != null){
+            boolean isOpen = LocalDate.now().isBefore(t.getRegistrationDeadline()) || LocalDate.now().isEqual(t.getRegistrationDeadline());
+            dto.setRegistrationOpen(isOpen);
+        } else { dto.setRegistrationOpen(true);}
+
+        dto.setRating(t.getRating() != null ? t.getRating() : 0.0);
+
         return dto;
     }
 
@@ -98,7 +123,7 @@ public class TournamentServiceImpl implements TournamentService {
     public Tournament fromDTO(TournamentCreateDTO dto){
         Tournament t = new Tournament();
         t.setTitle(dto.getTitle());
-        t.setDate(dto.getDate());
+        t.setRegistrationDeadline(dto.getRegistrationDeadLine());
 
         Game game = gameRepo.findById(dto.getGameId())
                 .orElseThrow(() -> new RuntimeException("Game non trovato"));
@@ -145,6 +170,26 @@ public class TournamentServiceImpl implements TournamentService {
 
             matchRepo.save(m);
         }
+    }
+
+    @Override
+    public void addRating(Long tournamentId, Long userId, int score){
+        if(score < 1 || score > 5) throw new IllegalArgumentException("Voto non valido(1-5)");
+
+        Tournament t = repo.findById(tournamentId).orElseThrow(() -> new RuntimeException("Torneo non trovato"));
+        User u = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("Utente non trovato"));
+
+        TournamentRating rating = ratingRepo.findByTournamentAndUser(t, u).orElse(new TournamentRating());
+        rating.setTournament(t);
+        rating.setUser(u);
+        rating.setScore(score);
+        ratingRepo.save(rating);
+
+        Double average = ratingRepo.getAverageScoreByTournament(t);
+        double roundedAvg = Math.round(average * 10.0) / 10.0;
+        t.setRating(roundedAvg);
+        repo.save(t);
+
     }
 
 

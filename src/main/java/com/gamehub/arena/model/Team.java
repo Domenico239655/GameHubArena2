@@ -15,6 +15,9 @@ public class Team {
 
     private String name;
 
+    @Column(name = "score")
+    private Integer score;
+
     @ManyToOne
     private User owner;
 

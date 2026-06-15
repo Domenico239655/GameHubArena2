@@ -9,4 +9,5 @@ public class TeamResponseDTO {
     private String name;
     private String ownerUsername;
     private int membersCount;
+    private int score;
 }

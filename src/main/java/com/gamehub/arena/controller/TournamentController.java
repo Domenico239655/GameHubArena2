@@ -5,6 +5,7 @@ import com.gamehub.arena.dto.TournamentCreateDTO;
 import com.gamehub.arena.dto.TournamentResponseDTO;
 import com.gamehub.arena.model.Tournament;
 import com.gamehub.arena.service.TournamentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,16 @@ public class TournamentController {
     @PostMapping("/{tournamentId}/generate-bracket")
     public void generateBracket(@PathVariable Long tournamentId){
         tournamentService.generateBracket(tournamentId);
+    }
+
+    @PostMapping("/{id}/rate")
+    public ResponseEntity<?> rateTournament(@PathVariable Long id, @RequestParam Long userId, @RequestParam int score) {
+        try {
+            tournamentService.addRating(id, userId, score);
+            return ResponseEntity.ok().body("Rating salvato con successo!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     
 }
