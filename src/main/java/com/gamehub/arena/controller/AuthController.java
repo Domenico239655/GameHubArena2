@@ -54,6 +54,8 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody UserLoginDTO dto) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        User user = userService.findByUsername(userDetails.getUsername()).orElseThrow();
+
 
         String authority = userDetails.getAuthorities().iterator().next().getAuthority();
 
@@ -66,6 +68,7 @@ public class AuthController {
         res.setUsername(userDetails.getUsername());
         res.setRole(userDetails.getAuthorities().iterator().next().getAuthority());
         res.setToken(token);
+        res.setId(user.getId());
 
         return ResponseEntity.ok(res);
     }
