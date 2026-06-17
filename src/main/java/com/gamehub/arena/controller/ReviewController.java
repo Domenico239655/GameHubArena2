@@ -18,8 +18,9 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ReviewResponseDTO create(@RequestBody ReviewCreateDTO r){
-        return service.create(r);
+    public ReviewResponseDTO create(@RequestBody ReviewCreateDTO r, java.security.Principal principal) {
+        String username = principal.getName();
+        return service.createWithUser(r, username);
     }
 
     @GetMapping

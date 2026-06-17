@@ -21,3 +21,9 @@
 5. PROFILO PLAYER3:
     -USERNAME: PLAYER3
     -PASSWORD: Player.3
+
+
+
+5. PROFILO SECONDO ORGANIZZATORE:
+    -USERNAME: Secondo_Organizzatore
+    -PASSWORD: Organizzatore2

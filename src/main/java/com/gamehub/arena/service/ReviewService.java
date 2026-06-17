@@ -13,5 +13,6 @@ public interface ReviewService {
     ReviewResponseDTO getById(Long id);
     ReviewResponseDTO toDTO(Review review);
     Review fromDTO(ReviewCreateDTO dto);
+    ReviewResponseDTO createWithUser(ReviewCreateDTO dto, String username);
     Optional<Review> findEntityById(Long id);
 }
