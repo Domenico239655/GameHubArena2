@@ -30,6 +30,9 @@ public class GameServiceImpl implements GameService {
 
         Game game = fromDTO(dto);
         game.setTitle(title);
+        if(repo.existsByTitle(title)){
+            throw new RuntimeException("Gioco presente nella libreria");
+        }
 
         if(rawg != null){
             game.setCoverUrl(rawg.getBackgroundImage());
