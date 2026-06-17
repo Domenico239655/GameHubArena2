@@ -96,4 +96,31 @@ public class ReviewServiceImpl implements ReviewService {
     public Optional<Review> findEntityById(Long id) {
         return repo.findById(id);
     }
+
+    @Override
+    public ReviewResponseDTO createWithUser(ReviewCreateDTO dto, String username) {
+        Review review = new Review();
+        review.setRating(dto.getRating());
+        review.setComment(dto.getComment());
+
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utente non trovato per lo username: " + username));
+        review.setUser(user);
+
+        if (dto.getGameId() != null) {
+            Game game = gameRepo.findById(dto.getGameId())
+                    .orElseThrow(() -> new RuntimeException("Gioco non trovato!"));
+            review.setGame(game);
+        }
+
+        if (dto.getTournamentId() != null) {
+            Tournament tournament = tournamentRepo.findById(dto.getTournamentId())
+                    .orElseThrow(() -> new RuntimeException("Torneo non trovato!"));
+            review.setTournament(tournament);
+        }
+
+        repo.save(review);
+        return toDTO(review);
+    }
+
 }
