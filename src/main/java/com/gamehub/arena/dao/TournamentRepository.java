@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     @Override
-    @EntityGraph(attributePaths = {"partecipants", "game"})
+    @EntityGraph(attributePaths = {"participants", "game"})
     List<Tournament> findAll();
 }

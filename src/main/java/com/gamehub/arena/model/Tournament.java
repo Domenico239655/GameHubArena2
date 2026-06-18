@@ -91,8 +91,8 @@ public class Tournament {
         return participants;
     }
 
-    public void setParticipants(List<User> partecipants) {
-        this.participants = partecipants;
+    public void setParticipants(List<User> participants) {
+        this.participants = participants;
     }
 
     public String getDescription() {
