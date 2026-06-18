@@ -64,15 +64,18 @@ public class TournamentController {
     public ResponseEntity<?> saveGameId(@PathVariable Long tournamentId, @RequestParam Long userId, @RequestParam String gameId) {
         try {
             tournamentService.savePlayerGameId(tournamentId, userId, gameId);
-            return ResponseEntity.ok().body("{\"message\": \"Game ID salvato!\"}");
+            // Uso Map.of per creare automaticamente un oggetto JSON corretto
+            return ResponseEntity.ok(java.util.Map.of("message", "Game ID salvato!"));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
         }
     }
     @GetMapping("/{tournamentId}/player-id/{userId}")
     public ResponseEntity<?> getGameId(@PathVariable Long tournamentId, @PathVariable Long userId) {
         String gameId = tournamentService.getPlayerGameId(tournamentId, userId);
-        return ResponseEntity.ok().body("{\"gameId\": \"" + (gameId != null ? gameId : "") + "\"}");
+
+        // Uso Map.of al posto della stringa manuale
+        return ResponseEntity.ok(java.util.Map.of("gameId", gameId != null ? gameId : ""));
     }
 
 }
