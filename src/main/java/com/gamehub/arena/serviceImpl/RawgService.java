@@ -58,6 +58,9 @@ public class RawgService {
                 String trailerUrl = fetchTrailer(gameId, dto.getTitle());
                 dto.setTrailerUrl(trailerUrl);
 
+                String description = fetchDescription(gameId);
+                dto.setDescription(description);
+
                 results.add(dto);
             }
         } catch (Exception e) {
@@ -91,5 +94,21 @@ public class RawgService {
                 return null;
             }
         }
+    }
+
+    private String fetchDescription(int gameId){
+        try{
+            String url = apiUrl + "/games/" + gameId + "/movies?key=" + apiKey;
+            String response = restTemplate.getForObject(url, String.class);
+            JsonNode root = mapper.readTree(response);
+
+            if (root.has("description_raw") && !root.get("description_raw").isNull()){
+                String description = root.get("description_raw").asText();
+                return description.isEmpty() ? "Descrizione nel trailer di Gioco" : description;
+            }
+        } catch (Exception e){
+            System.err.println("Errore fetch descrizione");
+        }
+        return "Descrizione nel trailer di Gioco";
     }
 }

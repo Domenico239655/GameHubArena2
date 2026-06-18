@@ -54,7 +54,7 @@ public class TournamentController {
     public ResponseEntity<?> rateTournament(@PathVariable Long id, @RequestParam Long userId, @RequestParam int score) {
         try {
             tournamentService.addRating(id, userId, score);
-            return ResponseEntity.ok().body("Rating salvato con successo!");
+            return ResponseEntity.ok(java.util.Map.of("message", "Rating salvato con successo!"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

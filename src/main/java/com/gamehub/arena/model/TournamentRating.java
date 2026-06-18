@@ -4,7 +4,9 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "tournament_rating")
+@Table(uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"tournament_id", "user_id"})
+})
 public class TournamentRating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
