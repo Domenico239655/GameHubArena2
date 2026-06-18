@@ -1,6 +1,10 @@
 package com.gamehub.arena.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "games")
@@ -8,6 +12,11 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToMany(mappedBy = "personalLibrary")
+    @JsonIgnore
+    private Set<User> users = new HashSet<>();
+
 
     private String title;
     private String genere;
@@ -71,5 +80,9 @@ public class Game {
     public String getDescription() {return description;}
 
     public void setDescription(String description) {this.description = description;}
+
+    public Set<User> getUsers() {return users;}
+
+    public void setUsers(Set<User> users) {this.users = users;}
 
 }
