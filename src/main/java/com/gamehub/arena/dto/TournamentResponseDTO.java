@@ -16,6 +16,7 @@ public class TournamentResponseDTO {
     private String description;
     private List<TeamResponseDTO> teams;
     private Double rating;
+    private LocalDate startDate;
 
 
 }

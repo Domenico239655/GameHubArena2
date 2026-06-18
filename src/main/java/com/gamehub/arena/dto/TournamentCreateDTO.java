@@ -8,5 +8,7 @@ import java.time.LocalDate;
 public class TournamentCreateDTO {
     private String title;
     private Long gameId;
-    private LocalDate registrationDeadLine;
+    private LocalDate startDate;
+    private String description;
+    private Integer maxParticipants;
 }

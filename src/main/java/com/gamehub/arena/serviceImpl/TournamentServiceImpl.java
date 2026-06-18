@@ -22,8 +22,9 @@ public class TournamentServiceImpl implements TournamentService {
     private final MatchRepository matchRepo;
     private final GameService gameService;
     private final TournamentRatingRepository ratingRepo;
+    private final TournamentPlayerIdRepository playerIdRepo;
 
-    public TournamentServiceImpl(TournamentRepository repo, UserRepository userRepo, GameRepository gameRepo, NotificationService notificationService, MatchRepository matchRepo, GameService gameService, TournamentRatingRepository ratingRepo){
+    public TournamentServiceImpl(TournamentRepository repo, UserRepository userRepo, GameRepository gameRepo, NotificationService notificationService, MatchRepository matchRepo, GameService gameService, TournamentRatingRepository ratingRepo, TournamentPlayerIdRepository playerIdRepo){
         this.repo = repo;
         this.userRepo = userRepo;
         this.gameRepo = gameRepo;
@@ -31,11 +32,15 @@ public class TournamentServiceImpl implements TournamentService {
         this.matchRepo = matchRepo;
         this.gameService = gameService;
         this.ratingRepo = ratingRepo;
+        this.playerIdRepo = playerIdRepo;
     }
 
     @Override
-    public TournamentResponseDTO create(TournamentCreateDTO dto) {
+    public TournamentResponseDTO create(TournamentCreateDTO dto, String username) {
+        User organizer = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Organizzatore non trovato!"));
         Tournament t = fromDTO(dto);
+        t.setOrganizer(organizer); // <--- Associa l'utente loggato come organizzatore!
         repo.save(t);
         return toDTO(t);
     }
@@ -65,6 +70,14 @@ public class TournamentServiceImpl implements TournamentService {
         User u = userRepo.findById(userId)
                 .orElseThrow(()-> new RuntimeException("Utente non trovato"));
 
+        if (t.getParticipants().contains(u)) {
+            throw new RuntimeException("Sei già iscritto a questo torneo!");
+        }
+
+        if (t.getMaxParticipants() != null && t.getParticipants().size() >= t.getMaxParticipants()) {
+            throw new RuntimeException("Il torneo ha raggiunto il numero massimo di partecipanti!");
+        }
+
         t.getParticipants().add(u);
         repo.save(t);
 
@@ -73,10 +86,12 @@ public class TournamentServiceImpl implements TournamentService {
         dtoUser.setMessage("Ti sei iscritto al torneo: " + t.getTitle());
         notificationService.send(dtoUser);
 
-        NotificationCreateDTO dtoOrg = new NotificationCreateDTO();
-        dtoOrg.setUserId(t.getOrganizer().getId());
-        dtoOrg.setMessage("Nuovo iscitto al tuo torneo: " + u.getUsername());
-        notificationService.send(dtoOrg);
+        if (t.getOrganizer() != null) {
+            NotificationCreateDTO dtoOrg = new NotificationCreateDTO();
+            dtoOrg.setUserId(t.getOrganizer().getId());
+            dtoOrg.setMessage("Nuovo iscritto al tuo torneo: " + u.getUsername());
+            notificationService.send(dtoOrg);
+        }
 
         return toDTO(t);
     }
@@ -109,8 +124,8 @@ public class TournamentServiceImpl implements TournamentService {
         if (t.getGame() != null) {
             dto.setGameImageUrl(t.getGame().getCoverUrl());
         }
-        if (t.getRegistrationDeadline() != null){
-            boolean isOpen = LocalDate.now().isBefore(t.getRegistrationDeadline()) || LocalDate.now().isEqual(t.getRegistrationDeadline());
+        if (t.getStartDate() != null){
+            boolean isOpen = LocalDate.now().isBefore(t.getStartDate()) || LocalDate.now().isEqual(t.getStartDate());
             dto.setRegistrationOpen(isOpen);
         } else { dto.setRegistrationOpen(true);}
 
@@ -123,7 +138,12 @@ public class TournamentServiceImpl implements TournamentService {
     public Tournament fromDTO(TournamentCreateDTO dto){
         Tournament t = new Tournament();
         t.setTitle(dto.getTitle());
-        t.setRegistrationDeadline(dto.getRegistrationDeadLine());
+        t.setStartDate(dto.getStartDate());
+
+        t.setDescription(dto.getDescription());
+        t.setStatus("ISCRIZIONI_APERTE");
+
+        t.setMaxParticipants(dto.getMaxParticipants());
 
         Game game = gameRepo.findById(dto.getGameId())
                 .orElseThrow(() -> new RuntimeException("Game non trovato"));
@@ -192,6 +212,33 @@ public class TournamentServiceImpl implements TournamentService {
 
     }
 
+    // Metodo per salvare il Game ID
+    @Override
+    public void savePlayerGameId(Long tournamentId, Long userId, String gameId) {
+        Tournament t = repo.findById(tournamentId).orElseThrow(() -> new RuntimeException("Torneo non trovato"));
+        User u = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("Utente non trovato"));
 
+        // Controlla se esiste già, così può essere inserito "una volta sola"
+        if (playerIdRepo.findByTournamentAndUser(t, u).isPresent()) {
+            throw new RuntimeException("Game ID già inserito per questo torneo!");
+        }
+
+        TournamentPlayerId tpi = new TournamentPlayerId();
+        tpi.setTournament(t);
+        tpi.setUser(u);
+        tpi.setGameId(gameId);
+        playerIdRepo.save(tpi);
+    }
+
+    // Metodo per recuperarlo (per nascondere il campo di testo se già inserito)
+    @Override
+    public String getPlayerGameId(Long tournamentId, Long userId) {
+        Tournament t = repo.findById(tournamentId).orElseThrow();
+        User u = userRepo.findById(userId).orElseThrow();
+
+        return playerIdRepo.findByTournamentAndUser(t, u)
+                .map(TournamentPlayerId::getGameId)
+                .orElse(null);
+    }
 }
 

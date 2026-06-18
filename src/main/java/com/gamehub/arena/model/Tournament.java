@@ -25,11 +25,14 @@ public class Tournament {
     private String status;
     //private LocalDate date;
 
-    @Column(name = "registration_deadline")
-    private LocalDate registrationDeadline;
+    @Column(name = "start_date")
+    private LocalDate startDate;
 
     @Column(name = "rating")
     private Double rating = 0.0;
+
+    @Column(name = "max_participants")
+    private Integer maxParticipants = 4;
 
     @ManyToOne
     private User organizer;
@@ -103,11 +106,11 @@ public class Tournament {
         this.description = description;
     }
 
-    public LocalDate getRegistrationDeadline() {
-        return registrationDeadline;
+    public LocalDate getStartDate() {
+        return startDate;
     }
 
-    public void setRegistrationDeadline(LocalDate registrationDeadline) {this.registrationDeadline = registrationDeadline;}
+    public void setStartDate(LocalDate registrationDeadline) {this.startDate = startDate;}
 
     public Double getRating() {
         return rating;
@@ -116,4 +119,8 @@ public class Tournament {
     public void setRating(Double rating) {
         this.rating = rating;
     }
+
+    public Integer getMaxParticipants() { return maxParticipants; }
+
+    public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 }

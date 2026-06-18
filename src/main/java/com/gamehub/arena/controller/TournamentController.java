@@ -7,6 +7,7 @@ import com.gamehub.arena.model.Tournament;
 import com.gamehub.arena.service.TournamentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -23,9 +24,9 @@ public class TournamentController {
     }
 
     @PostMapping
-    public TournamentResponseDTO create(@RequestBody TournamentCreateDTO dto){
-        return service.create(dto);
-
+    public TournamentResponseDTO create(@RequestBody TournamentCreateDTO dto, Authentication authentication){
+        String username = authentication.getName(); // Ottiene lo username di chi ha fatto la chiamata API
+        return service.create(dto, username);
     }
 
     @GetMapping
@@ -58,5 +59,20 @@ public class TournamentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    
+
+    @PostMapping("/{tournamentId}/player-id")
+    public ResponseEntity<?> saveGameId(@PathVariable Long tournamentId, @RequestParam Long userId, @RequestParam String gameId) {
+        try {
+            tournamentService.savePlayerGameId(tournamentId, userId, gameId);
+            return ResponseEntity.ok().body("{\"message\": \"Game ID salvato!\"}");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
+    }
+    @GetMapping("/{tournamentId}/player-id/{userId}")
+    public ResponseEntity<?> getGameId(@PathVariable Long tournamentId, @PathVariable Long userId) {
+        String gameId = tournamentService.getPlayerGameId(tournamentId, userId);
+        return ResponseEntity.ok().body("{\"gameId\": \"" + (gameId != null ? gameId : "") + "\"}");
+    }
+
 }

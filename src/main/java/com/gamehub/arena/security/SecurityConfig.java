@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/games/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/tournaments").hasAuthority("ROLE_ORGANIZER")
                         .requestMatchers("/api/tournaments/**").permitAll()
                         .requestMatchers("/api/teams/**").permitAll()
                         .requestMatchers("/api/matches/**").permitAll()

@@ -2,12 +2,9 @@ package com.gamehub.arena.model;
 
 import jakarta.persistence.*;
 
-import java.util.Date;
-
 @Entity
-@Table(name="tournament_participants")
-public class TournamentParticipant {
-
+@Table(name = "tournament_player_id")
+public class TournamentPlayerId {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,8 +15,10 @@ public class TournamentParticipant {
     @ManyToOne
     private User user;
 
-    private Date joinDate;
-    public TournamentParticipant(){}
+    @Column(name = "game_id")
+    private String gameId;
+
+    public TournamentPlayerId() {}
 
     public Long getId() {
         return id;
@@ -45,11 +44,12 @@ public class TournamentParticipant {
         this.user = user;
     }
 
-    public Date getJoinDate() {
-        return joinDate;
+    public String getGameId() {
+        return gameId;
     }
 
-    public void setJoinDate(Date joinDate) {
-        this.joinDate = joinDate;
+    public void setGameId(String gameId) {
+        this.gameId = gameId;
     }
+
 }

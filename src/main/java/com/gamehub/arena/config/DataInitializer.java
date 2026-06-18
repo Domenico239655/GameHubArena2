@@ -56,7 +56,7 @@ public class DataInitializer implements CommandLineRunner {
                     // Creiamo il Torneo
                     Tournament tournament = new Tournament();
                     tournament.setTitle(game.getTitle() + " - Arena Championship");
-                    tournament.setRegistrationDeadline(tournament.getRegistrationDeadline());
+                    tournament.setStartDate(tournament.getStartDate());
                     tournament.setStatus("ISCRIZIONI_APERTE");
                     tournament.setDescription("Benvenuto al torneo ufficiale di " + game.getTitle() +
                             ". Dimostra le tue abilità, scala la classifica di GameHub Arena e vinci il premio finale!");

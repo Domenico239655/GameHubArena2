@@ -46,6 +46,7 @@ public class AuthController {
         res.setUsername(user.getUsername());
         res.setRole(user.getRole());
         res.setToken(token);
+        res.setId(user.getId());
 
         return ResponseEntity.ok(res);
     }
@@ -62,7 +63,9 @@ public class AuthController {
         }
         String token = jwtUtil.generateToken(userDetails);
 
+        User user = userService.findByUsername(userDetails.getUsername()).orElseThrow(() -> new RuntimeException("Utente non trovato"));
         AuthResponse res = new AuthResponse();
+        res.setId(user.getId());
         res.setUsername(userDetails.getUsername());
         res.setRole(userDetails.getAuthorities().iterator().next().getAuthority());
         res.setToken(token);

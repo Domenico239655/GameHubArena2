@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TournamentService {
-    TournamentResponseDTO create(TournamentCreateDTO dto);
+    TournamentResponseDTO create(TournamentCreateDTO dto, String username);
     TournamentResponseDTO toDTO(Tournament t);
     Tournament fromDTO(TournamentCreateDTO dto);
     Optional<Tournament> findEntityById(Long id);
@@ -18,6 +18,9 @@ public interface TournamentService {
     TournamentResponseDTO join(Long tournamentId, Long userId);
     List<User> getParticipants(Long tournamentId);
     void generateBracket(Long tournamentId);
+
+    void savePlayerGameId(Long tournamentId, Long userId, String gameId);
+    String getPlayerGameId(Long tournamentId, Long userId);
 
     void addRating(Long tournamentId, Long userId, int score);
 }
