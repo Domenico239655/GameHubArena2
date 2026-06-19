@@ -17,6 +17,17 @@ public class Game {
     @JsonIgnore
     private Set<User> users = new HashSet<>();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(!(o instanceof Game)) return false;
+        Game game = (Game) o;
+        return id != null && id.equals(game.id);
+    }
+
+    @Override
+    public int hashCode() {return getClass().hashCode();}
+
 
     private String title;
     private String genere;

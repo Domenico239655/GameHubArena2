@@ -2,6 +2,7 @@ package com.gamehub.arena.controller;
 
 import com.gamehub.arena.dao.UserRepository;
 import com.gamehub.arena.dto.ChangePasswordDTO;
+import com.gamehub.arena.dto.GameResponseDTO;
 import com.gamehub.arena.dto.UserResponseDTO;
 import com.gamehub.arena.model.User;
 import com.gamehub.arena.service.UserService;
@@ -56,5 +57,22 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.ok("Password aggiornata con successo!");
+    }
+
+    @GetMapping("/me/library")
+    public List<GameResponseDTO> getMyLibrary(Authentication authentication){
+        return service.getLibrary(authentication.getName());
+    }
+
+    @PostMapping("/me/library/{gameId}")
+    public ResponseEntity<?> addToMyLibrary(@PathVariable Long gameId, Authentication authentication){
+        service.addGameToLibrary(authentication.getName(), gameId);
+        return ResponseEntity.ok("Gioco aggiunto dalla Libreria");
+    }
+
+    @DeleteMapping("/me/library/{gameId}")
+    public ResponseEntity<?> removeFromMyLibrary(@PathVariable Long gameId, Authentication authentication){
+        service.removeGameFromLibrary(authentication.getName(), gameId);
+        return ResponseEntity.ok("Gioco rimosso dalla Libreria");
     }
 }
