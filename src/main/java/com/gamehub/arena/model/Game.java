@@ -35,6 +35,8 @@ public class Game {
     private Double rating;
 
     private String rawgId;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     public Game() {

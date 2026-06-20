@@ -35,6 +35,7 @@ public class RawgService {
 
             for (JsonNode node : root) {
                 GameExternalDTO dto = new GameExternalDTO();
+                dto.setSlug(node.get("slug").asText());
                 dto.setTitle(node.get("name").asText());
 
                 dto.setBackgroundImage(node.has("background_image") && !node.get("background_image").isNull()
