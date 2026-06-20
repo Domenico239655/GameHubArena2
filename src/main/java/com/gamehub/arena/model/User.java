@@ -29,7 +29,7 @@ public class User {
     private int rank;
     private int elo = 1000;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
             name= "user_games",
             joinColumns = @JoinColumn(name= "user_id"),
