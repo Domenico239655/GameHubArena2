@@ -75,4 +75,23 @@ public class UserController {
         service.removeGameFromLibrary(authentication.getName(), gameId);
         return ResponseEntity.ok("Gioco rimosso dalla Libreria");
     }
+
+    @DeleteMapping("/delete-me")
+    public ResponseEntity<?> deleteMyAccount(Authentication authentication) {
+        try {
+            String currentUsername = authentication.getName();
+
+            User user = userRepository.findByUsername(currentUsername)
+                    .orElseThrow(() -> new RuntimeException("Utente non trovato!"));
+
+            userRepository.delete(user);
+
+            return ResponseEntity.ok("SELF_DELETED");
+
+        } catch (Exception e) {
+            System.err.println("🚨 ERRORE DURANTE L'AUTO-ELIMINAZIONE: 🚨");
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("ERRORE DEL DATABASE: " + e.getMessage());
+        }
+    }
 }
