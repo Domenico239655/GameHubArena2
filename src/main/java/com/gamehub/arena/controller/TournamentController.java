@@ -99,4 +99,39 @@ public class TournamentController {
     @GetMapping("/potm")
     public ResponseEntity<?> getPlayerOfTheMonth(){return ResponseEntity.ok(tournamentService.getPlayerOfTheMonth());}
 
+    @PostMapping("/match/{matchId}/upload-screenshot")
+    public ResponseEntity<?> uploadScreenshot(
+            @PathVariable Long matchId,
+            @RequestParam Long userId,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
+        try {
+            String url = tournamentService.saveScreenshot(matchId, userId, file);
+            return ResponseEntity.ok(java.util.Map.of("message", "Screenshot salvato", "url", url));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/uploads/{filename:.+}")
+    public ResponseEntity<org.springframework.core.io.Resource> getFile(@PathVariable String filename) {
+        try {
+            java.nio.file.Path file = java.nio.file.Paths.get(System.getProperty("user.dir"), "uploads").resolve(filename).normalize();
+            org.springframework.core.io.Resource resource = new org.springframework.core.io.UrlResource(file.toUri());
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = java.nio.file.Files.probeContentType(file);
+                if (contentType == null) {
+                    contentType = "application/octet-stream";
+                }
+                return ResponseEntity.ok()
+                        .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                        .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

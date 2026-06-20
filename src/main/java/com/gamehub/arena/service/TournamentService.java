@@ -23,6 +23,7 @@ public interface TournamentService {
     String getPlayerGameId(Long tournamentId, Long userId);
 
     void reportMatchResult(Long matchId, Long userId, boolean isWinner);
+    String saveScreenshot(Long matchId, Long userId, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException;
 
     java.util.Map<String, Object> getMyMatch(Long tournamentId, Long userId);
 

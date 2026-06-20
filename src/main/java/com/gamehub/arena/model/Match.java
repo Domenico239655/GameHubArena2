@@ -36,6 +36,12 @@ public class Match {
 
     private Integer roundNumber;
 
+    @Column(name = "screenshot_player1")
+    private String screenshotPlayer1;
+
+    @Column(name = "screenshot_player2")
+    private String screenshotPlayer2;
+
     @Enumerated(EnumType.STRING)
     private MatchStatus stato;
 
@@ -143,5 +149,21 @@ public class Match {
 
     public void setStato(MatchStatus stato) {
         this.stato = stato;
+    }
+
+    public String getScreenshotPlayer1() {
+        return screenshotPlayer1;
+    }
+
+    public void setScreenshotPlayer1(String screenshotPlayer1) {
+        this.screenshotPlayer1 = screenshotPlayer1;
+    }
+
+    public String getScreenshotPlayer2() {
+        return screenshotPlayer2;
+    }
+
+    public void setScreenshotPlayer2(String screenshotPlayer2) {
+        this.screenshotPlayer2 = screenshotPlayer2;
     }
 }
