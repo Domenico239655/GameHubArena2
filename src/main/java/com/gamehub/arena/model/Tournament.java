@@ -62,14 +62,6 @@ public class Tournament {
         this.status = status;
     }
 
-//    public LocalDate getDate() {
-//        return date;
-//    }
-
-//    public void setDate(LocalDate date) {
-//        this.date = date;
-//    }
-
     public void setOrganizer(User organizer) {
         this.organizer = organizer;
     }

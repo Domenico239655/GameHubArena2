@@ -26,8 +26,8 @@ public class RawgService {
     private final ObjectMapper mapper = new ObjectMapper();
 
     public List<GameExternalDTO> searchGames(String query) {
-        String url = apiUrl + "/games?search=" + query + "&key=" + apiKey;
-        String response = restTemplate.getForObject(url, String.class);
+        String url = apiUrl + "/games?search={query}&key={apiKey}";
+        String response = restTemplate.getForObject(url, String.class, query, apiKey);
         List<GameExternalDTO> results = new ArrayList<>();
 
         try {
