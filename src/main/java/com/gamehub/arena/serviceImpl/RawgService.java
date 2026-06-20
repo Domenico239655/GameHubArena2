@@ -98,17 +98,17 @@ public class RawgService {
 
     private String fetchDescription(int gameId){
         try{
-            String url = apiUrl + "/games/" + gameId + "/movies?key=" + apiKey;
+            String url = apiUrl + "/games/" + gameId + "?key=" + apiKey;
             String response = restTemplate.getForObject(url, String.class);
             JsonNode root = mapper.readTree(response);
 
             if (root.has("description_raw") && !root.get("description_raw").isNull()){
                 String description = root.get("description_raw").asText();
-                return description.isEmpty() ? "Descrizione nel trailer di Gioco" : description;
+                return description.isEmpty() ? "Dettagli disponibili nel trailer ufficiale." : description;
             }
         } catch (Exception e){
             System.err.println("Errore fetch descrizione");
         }
-        return "Descrizione nel trailer di Gioco";
+        return "Dettagli disponibili nel trailer ufficiale.";
     }
 }
