@@ -31,7 +31,6 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // LA MODIFICA FONDAMENTALE: Controlliamo se il database è vuoto
         if (tournamentRepository.count() == 0) {
 
             System.out.println("=== IL DATABASE È VUOTO: AVVIO POPOLAMENTO INIZIALE DA RAWG ===");
@@ -44,7 +43,6 @@ public class DataInitializer implements CommandLineRunner {
                 if (!apiResults.isEmpty()) {
                     GameExternalDTO rawgGame = apiResults.get(0);
 
-                    // Creiamo il Gioco
                     Game game = new Game();
                     game.setTitle(rawgGame.getTitle());
                     game.setCoverUrl(rawgGame.getBackgroundImage());
@@ -53,7 +51,7 @@ public class DataInitializer implements CommandLineRunner {
 
                     game = gameRepository.save(game);
 
-                    // Creiamo il Torneo
+
                     Tournament tournament = new Tournament();
                     tournament.setTitle(game.getTitle() + " - Arena Championship");
                     tournament.setStartDate(tournament.getStartDate());
@@ -64,14 +62,9 @@ public class DataInitializer implements CommandLineRunner {
                     tournament.setParticipants(new ArrayList<>());
 
                     tournamentRepository.save(tournament);
-                    System.out.println("Inserito con successo il torneo per: " + game.getTitle());
+
                 }
             }
-            System.out.println("=== INIZIALIZZAZIONE COMPLETATA CON SUCCESSO ===");
-
-        } else {
-            // Se ci sono già dati, Spring Boot salta questo blocco e i tuoi dati reali rimangono al sicuro!
-            System.out.println("=== DATABASE GIÀ POPOLATO: I tuoi tornei risiedono al sicuro nel DB ===");
         }
     }
 }

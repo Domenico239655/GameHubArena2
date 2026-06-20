@@ -75,7 +75,6 @@ public class AdminController {
 
             if (currentAdminUsername.equals(targetUser.getUsername())) {
                 userRepository.delete(targetUser);
-                // Mandiamo un messaggio "in codice" speciale ad Angular per dirgli di sloggare
                 return ResponseEntity.ok("SELF_DELETED");
             }
             if("ADMIN".equals(targetUser.getRole())){
@@ -135,12 +134,10 @@ public class AdminController {
 
             User targetUser = targetUserOpt.get();
 
-            // Controllo di sicurezza: ha senso sbannarlo?
             if (!Role.BANNED.equals(targetUser.getRole())) {
                 return ResponseEntity.badRequest().body("L'utente '" + username + "' non è attualmente bannato.");
             }
 
-            // Riportiamo l'utente al ruolo originale (PLAYER)
             targetUser.setRole(Role.PLAYER);
             userRepository.save(targetUser);
 

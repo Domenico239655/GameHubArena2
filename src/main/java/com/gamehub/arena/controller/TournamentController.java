@@ -25,7 +25,7 @@ public class TournamentController {
 
     @PostMapping
     public TournamentResponseDTO create(@RequestBody TournamentCreateDTO dto, Authentication authentication){
-        String username = authentication.getName(); // Ottiene lo username di chi ha fatto la chiamata API
+        String username = authentication.getName();
         return service.create(dto, username);
     }
 
@@ -64,7 +64,6 @@ public class TournamentController {
     public ResponseEntity<?> saveGameId(@PathVariable Long tournamentId, @RequestParam Long userId, @RequestParam String gameId) {
         try {
             tournamentService.savePlayerGameId(tournamentId, userId, gameId);
-            // Uso Map.of per creare automaticamente un oggetto JSON corretto
             return ResponseEntity.ok(java.util.Map.of("message", "Game ID salvato!"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
@@ -74,7 +73,7 @@ public class TournamentController {
     public ResponseEntity<?> getGameId(@PathVariable Long tournamentId, @PathVariable Long userId) {
         String gameId = tournamentService.getPlayerGameId(tournamentId, userId);
 
-        // Uso Map.of al posto della stringa manuale
+        
         return ResponseEntity.ok(java.util.Map.of("gameId", gameId != null ? gameId : ""));
     }
 

@@ -39,7 +39,7 @@ public class TournamentServiceImpl implements TournamentService {
         User organizer = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Organizzatore non trovato!"));
         Tournament t = fromDTO(dto);
-        t.setOrganizer(organizer); // <--- Associa l'utente loggato come organizzatore!
+        t.setOrganizer(organizer);
         repo.save(t);
         return toDTO(t);
     }
@@ -51,14 +51,12 @@ public class TournamentServiceImpl implements TournamentService {
 
         if ("ISCRIZIONI_APERTE".equals(t.getStatus()) && t.getStartDate() != null) {
 
-            // Controlla se l'orario attuale è MAGGIORE o UGUALE all'orario di inizio
+
             if (java.time.LocalDateTime.now().isAfter(t.getStartDate()) || java.time.LocalDateTime.now().isEqual(t.getStartDate())) {
                 try {
-                    // Genera gli accoppiamenti casuali
+
                     this.generateBracket(t.getId());
-                    // Cambia lo stato per bloccare nuove iscrizioni
-                    //t.setStatus("IN_CORSO");
-                    //repo.save(t);
+
                 } catch (Exception e) {
                     System.out.println("Nessun giocatore iscritto o errore: " + e.getMessage());
                 }
@@ -127,12 +125,12 @@ public class TournamentServiceImpl implements TournamentService {
         if (t.getParticipants() != null) {
             dto.setParticipantsCount(t.getParticipants().size());
 
-            // USIAMO IL NUOVO TeamResponseDTO
+
             List<TeamResponseDTO> mappedTeams = t.getParticipants().stream().map(user -> {
                 TeamResponseDTO teamDto = new TeamResponseDTO();
                 teamDto.setId(user.getId());
                 teamDto.setName(user.getUsername());
-                teamDto.setScore(0); // Score di default
+                teamDto.setScore(0);
                 return teamDto;
             }).toList();
 
@@ -241,13 +239,12 @@ public class TournamentServiceImpl implements TournamentService {
 
     }
 
-    // Metodo per salvare il Game ID
     @Override
     public void savePlayerGameId(Long tournamentId, Long userId, String gameId) {
         Tournament t = repo.findById(tournamentId).orElseThrow(() -> new RuntimeException("Torneo non trovato"));
         User u = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("Utente non trovato"));
 
-        // Controlla se esiste già, così può essere inserito "una volta sola"
+
         if (playerIdRepo.findByTournamentAndUser(t, u).isPresent()) {
             throw new RuntimeException("Game ID già inserito per questo torneo!");
         }
@@ -259,7 +256,7 @@ public class TournamentServiceImpl implements TournamentService {
         playerIdRepo.save(tpi);
     }
 
-    // Metodo per recuperarlo (per nascondere il campo di testo se già inserito)
+
     @Override
     public String getPlayerGameId(Long tournamentId, Long userId) {
         Tournament t = repo.findById(tournamentId).orElseThrow();
@@ -273,7 +270,7 @@ public class TournamentServiceImpl implements TournamentService {
     @Override
     public java.util.Map<String, Object> getMyMatch(Long tournamentId, Long userId) {
         Tournament t = repo.findById(tournamentId).orElseThrow();
-        // Grilletto Automatico
+
         if ("ISCRIZIONI_APERTE".equals(t.getStatus()) && t.getStartDate() != null) {
             if (java.time.LocalDateTime.now().isAfter(t.getStartDate()) || java.time.LocalDateTime.now().isEqual(t.getStartDate())) {
                 try {
@@ -286,7 +283,7 @@ public class TournamentServiceImpl implements TournamentService {
         List<Match> matches = matchRepo.findByTournamentIdOrderByRoundNumberAsc(tournamentId);
         Match myMatch = null;
         User opponent = null;
-        // Cerca il match attivo (non ci fermiamo solo a PENDING ora!)
+
         for (int i = matches.size() - 1; i >= 0; i--) {
             Match m = matches.get(i);
             if (m.getStato() == MatchStatus.PENDING || m.getStato() == MatchStatus.FINISHED || m.getStato() == MatchStatus.DISPUTED) {
@@ -306,7 +303,7 @@ public class TournamentServiceImpl implements TournamentService {
         response.put("matchStatus", myMatch.getStato().name()); // PENDING, FINISHED o DISPUTED
         boolean hasReported = false;
         boolean isWinner = false;
-        // Logica per sapere se IO ho votato e se IO ho vinto
+
         if (myMatch.getPlayer1() != null && myMatch.getPlayer1().getId().equals(userId)) {
             hasReported = (myMatch.getScorePlayer1() != null);
             if (myMatch.getStato() == MatchStatus.FINISHED) {
@@ -337,7 +334,7 @@ public class TournamentServiceImpl implements TournamentService {
 
         int score = isWinner ? 1 : 0;
 
-        // Salviamo la risposta del giocatore
+
         if (m.getPlayer1() != null && m.getPlayer1().getId().equals(userId)) {
             m.setScorePlayer1(score);
         } else if (m.getPlayer2() != null && m.getPlayer2().getId().equals(userId)) {
@@ -345,14 +342,14 @@ public class TournamentServiceImpl implements TournamentService {
         } else {
             throw new RuntimeException("Non fai parte di questo match!");
         }
-        // Controllo intelligente: se entrambi hanno votato, valutiamo chi ha vinto
+
         if (m.getScorePlayer1() != null && m.getScorePlayer2() != null) {
             if (m.getScorePlayer1() == 1 && m.getScorePlayer2() == 0) {
                 m.setStato(MatchStatus.FINISHED); // Player 1 vince pulito
             } else if (m.getScorePlayer2() == 1 && m.getScorePlayer1() == 0) {
                 m.setStato(MatchStatus.FINISHED); // Player 2 vince pulito
             } else {
-                // Risultati discordanti! Entrambi dicono di aver vinto!
+
                 m.setStato(MatchStatus.DISPUTED);
             }
         }
@@ -364,17 +361,17 @@ public class TournamentServiceImpl implements TournamentService {
 
     private void checkAndGenerateNextRound(Long tournamentId, int currentRound) {
         List<Match> allMatches = matchRepo.findByTournamentIdOrderByRoundNumberAsc(tournamentId);
-        // Prendi solo le partite di questo round
+
         List<Match> currentRoundMatches = allMatches.stream()
                 .filter(m -> m.getRoundNumber() == currentRound)
                 .toList();
-        // Controlla se sono TUTTE FINITE
+
         boolean allFinished = currentRoundMatches.stream()
                 .allMatch(m -> m.getStato() == MatchStatus.FINISHED);
         if (!allFinished) {
-            return; // C'è ancora qualcuno che gioca! Aspettiamo.
+            return;
         }
-        // Il round è completato! Raccogliamo i vincitori mantenendo l'ordine
+
         List<User> winners = new ArrayList<>();
         for (Match m : currentRoundMatches) {
             if (m.getScorePlayer1() != null && m.getScorePlayer1() == 1) {
@@ -383,7 +380,7 @@ public class TournamentServiceImpl implements TournamentService {
                 winners.add(m.getPlayer2());
             }
         }
-        // Se c'è solo 1 vincitore totale, IL TORNEO È FINITO!
+
         if (winners.size() == 1) {
             Tournament t = repo.findById(tournamentId).orElseThrow();
             t.setStatus("CONCLUSO");
@@ -396,7 +393,7 @@ public class TournamentServiceImpl implements TournamentService {
             repo.save(t);
             return;
         }
-        // Se ci sono più vincitori, creiamo i nuovi accoppiamenti (Es. Semifinali, Finale)
+        
         Tournament t = repo.findById(tournamentId).orElseThrow();
         for (int i = 0; i < winners.size(); i += 2) {
             Match newMatch = new Match();

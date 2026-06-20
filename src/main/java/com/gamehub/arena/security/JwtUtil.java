@@ -20,7 +20,7 @@ public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String secretKey;
-    private final long EXPIRATION = 1000 * 60 * 60 * 24; // 24 ore
+    private final long EXPIRATION = 1000 * 60 * 60 * 24;
     private Key getSigningKey(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
