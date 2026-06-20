@@ -1,12 +1,13 @@
 package com.gamehub.arena.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Getter
 @Entity
 @Table(name = "tournament")
 public class Tournament {
@@ -23,10 +24,9 @@ public class Tournament {
 
 
     private String status;
-    //private LocalDate date;
 
     @Column(name = "start_date")
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "rating")
     private Double rating = 0.0;
@@ -42,32 +42,16 @@ public class Tournament {
 
     public Tournament(){}
 
-    public Long getId() {
-        return id;
-    }
-
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public Game getGame() {
-        return game;
-    }
-
     public void setGame(Game game) {
         this.game = game;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     public void setStatus(String status) {
@@ -82,45 +66,23 @@ public class Tournament {
 //        this.date = date;
 //    }
 
-    public User getOrganizer() {
-        return organizer;
-    }
-
     public void setOrganizer(User organizer) {
         this.organizer = organizer;
-    }
-
-    public List<User> getParticipants() {
-        return participants;
     }
 
     public void setParticipants(List<User> participants) {
         this.participants = participants;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate registrationDeadline) {this.startDate = startDate;}
-
-    public Double getRating() {
-        return rating;
-    }
+    public void setStartDate(LocalDateTime startDate) {this.startDate = startDate;}
 
     public void setRating(Double rating) {
         this.rating = rating;
     }
-
-    public Integer getMaxParticipants() { return maxParticipants; }
 
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
 }

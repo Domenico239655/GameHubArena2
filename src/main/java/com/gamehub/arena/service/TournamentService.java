@@ -22,5 +22,9 @@ public interface TournamentService {
     void savePlayerGameId(Long tournamentId, Long userId, String gameId);
     String getPlayerGameId(Long tournamentId, Long userId);
 
+    void reportMatchResult(Long matchId, Long userId, boolean isWinner);
+
+    java.util.Map<String, Object> getMyMatch(Long tournamentId, Long userId);
+
     void addRating(Long tournamentId, Long userId, int score);
 }

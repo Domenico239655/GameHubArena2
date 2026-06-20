@@ -2,7 +2,7 @@ package com.gamehub.arena.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,7 +16,7 @@ public class TournamentResponseDTO {
     private String description;
     private List<TeamResponseDTO> teams;
     private Double rating;
-    private LocalDate startDate;
+    private LocalDateTime startDate;
 
 
 }

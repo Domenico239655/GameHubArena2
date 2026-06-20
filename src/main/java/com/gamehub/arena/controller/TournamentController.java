@@ -78,4 +78,22 @@ public class TournamentController {
         return ResponseEntity.ok(java.util.Map.of("gameId", gameId != null ? gameId : ""));
     }
 
+    @GetMapping("/{tournamentId}/my-match/{userId}")
+    public ResponseEntity<?> getMyMatch(@PathVariable Long tournamentId, @PathVariable Long userId) {
+        return ResponseEntity.ok(tournamentService.getMyMatch(tournamentId, userId));
+    }
+
+    @PostMapping("/match/{matchId}/report")
+    public ResponseEntity<?> reportMatchResult(
+            @PathVariable Long matchId,
+            @RequestParam Long userId,
+            @RequestParam boolean isWinner) {
+        try {
+            tournamentService.reportMatchResult(matchId, userId, isWinner);
+            return ResponseEntity.ok(java.util.Map.of("message", "Risultato salvato con successo"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("error", e.getMessage()));
+        }
+    }
+
 }
