@@ -280,7 +280,9 @@ public class TournamentServiceImpl implements TournamentService {
                     this.generateBracket(t.getId());
                     //t.setStatus("IN_CORSO");
                     //repo.save(t);
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                System.err.println("Impossibile generare bracket: " + e.getMessage());
+            }
             }
         }
         List<Match> matches = matchRepo.findByTournamentIdOrderByRoundNumberAsc(tournamentId);
@@ -302,7 +304,16 @@ public class TournamentServiceImpl implements TournamentService {
             return java.util.Map.of("message", "Nessun match attivo trovato.");
         }
         java.util.Map<String, Object> response = new java.util.HashMap<>();
+        
+        int size = t.getParticipants().size();
+        if (size < 2) size = 2;
+        int nextPowerOfTwo = 1;
+        while(nextPowerOfTwo < size) nextPowerOfTwo*=2;
+        int totalRounds = Integer.numberOfTrailingZeros(nextPowerOfTwo);
+        
         response.put("matchId", myMatch.getId());
+        response.put("roundNumber", myMatch.getRoundNumber());
+        response.put("totalRounds", totalRounds);
         response.put("matchStatus", myMatch.getStato().name()); // PENDING, FINISHED o DISPUTED
         boolean hasReported = false;
         boolean isWinner = false;
@@ -322,6 +333,10 @@ public class TournamentServiceImpl implements TournamentService {
         response.put("hasReported", hasReported);
         response.put("isWinner", isWinner);
 
+        // Aggiungi screenshot url se disponibili
+        response.put("myScreenshot", myMatch.getPlayer1() != null && myMatch.getPlayer1().getId().equals(userId) ? myMatch.getScreenshotPlayer1() : myMatch.getScreenshotPlayer2());
+        response.put("opponentScreenshot", myMatch.getPlayer1() != null && myMatch.getPlayer1().getId().equals(userId) ? myMatch.getScreenshotPlayer2() : myMatch.getScreenshotPlayer1());
+
         if (opponent != null) {
             response.put("opponentName", opponent.getUsername());
             String opponentGameId = playerIdRepo.findByTournamentAndUser(t, opponent)
@@ -329,6 +344,35 @@ public class TournamentServiceImpl implements TournamentService {
             response.put("opponentGameId", opponentGameId);
         }
         return response;
+    }
+
+    @Override
+    public String saveScreenshot(Long matchId, Long userId, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        Match m = matchRepo.findById(matchId).orElseThrow(() -> new RuntimeException("Match non trovato"));
+        if (m.getStato() != MatchStatus.DISPUTED) {
+            throw new RuntimeException("Puoi caricare uno screenshot solo se il match è contestato!");
+        }
+
+        java.nio.file.Path uploadPath = java.nio.file.Paths.get(System.getProperty("user.dir"), "uploads");
+        if (!java.nio.file.Files.exists(uploadPath)) {
+            java.nio.file.Files.createDirectories(uploadPath);
+        }
+
+        String filename = "match-" + matchId + "-user-" + userId + "-" + file.getOriginalFilename();
+        java.nio.file.Path filePath = uploadPath.resolve(filename);
+        file.transferTo(filePath.toFile());
+
+        String url = "/api/tournaments/uploads/" + filename;
+
+        if (m.getPlayer1() != null && m.getPlayer1().getId().equals(userId)) {
+            m.setScreenshotPlayer1(url);
+        } else if (m.getPlayer2() != null && m.getPlayer2().getId().equals(userId)) {
+            m.setScreenshotPlayer2(url);
+        } else {
+            throw new RuntimeException("Non fai parte di questo match!");
+        }
+        matchRepo.save(m);
+        return url;
     }
 
     @Override
