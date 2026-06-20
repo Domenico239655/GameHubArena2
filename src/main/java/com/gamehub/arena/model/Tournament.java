@@ -21,6 +21,10 @@ public class Tournament {
 
     @ManyToOne
     private Game game;
+    @ManyToOne
+    private User winner;
+    @Column(name = "end_date")
+    private LocalDateTime endDate;
 
 
     private String status;
@@ -85,4 +89,8 @@ public class Tournament {
     }
 
     public void setMaxParticipants(Integer maxParticipants) { this.maxParticipants = maxParticipants; }
+
+    public void setWinner(User winner) {this.winner = winner;}
+
+    public void setEndDate(LocalDateTime endDate) {this.endDate = endDate;}
 }

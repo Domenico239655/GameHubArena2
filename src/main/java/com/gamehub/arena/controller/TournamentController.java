@@ -96,4 +96,7 @@ public class TournamentController {
         }
     }
 
+    @GetMapping("/potm")
+    public ResponseEntity<?> getPlayerOfTheMonth(){return ResponseEntity.ok(tournamentService.getPlayerOfTheMonth());}
+
 }

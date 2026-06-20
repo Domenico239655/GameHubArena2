@@ -12,4 +12,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
     @Override
     @EntityGraph(attributePaths = {"participants", "game"})
     List<Tournament> findAll();
+
+    @org.springframework.data.jpa.repository.Query("SELECT t.winner.username, COUNT(t) as wins FROM Tournament t WHERE t.status = 'CONCLUSO' AND FUNCTION('MONTH', t.endDate) = FUNCTION('MONTH', CURRENT_DATE) AND FUNCTION('YEAR', t.endDate) = FUNCTION('YEAR', CURRENT_DATE) GROUP BY t.winner.username ORDER BY wins DESC")
+    List<Object[]> findPlayerofTheMonth();
 }

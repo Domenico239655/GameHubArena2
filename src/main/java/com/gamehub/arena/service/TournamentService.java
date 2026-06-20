@@ -27,4 +27,6 @@ public interface TournamentService {
     java.util.Map<String, Object> getMyMatch(Long tournamentId, Long userId);
 
     void addRating(Long tournamentId, Long userId, int score);
+
+    java.util.Map<String, Object> getPlayerOfTheMonth();
 }

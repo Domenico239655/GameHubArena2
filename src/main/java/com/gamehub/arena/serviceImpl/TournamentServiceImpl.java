@@ -8,7 +8,6 @@ import com.gamehub.arena.service.NotificationService;
 import com.gamehub.arena.service.TournamentService;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -388,6 +387,12 @@ public class TournamentServiceImpl implements TournamentService {
         if (winners.size() == 1) {
             Tournament t = repo.findById(tournamentId).orElseThrow();
             t.setStatus("CONCLUSO");
+
+            User winner = winners.get(0);
+            t.setWinner(winner);
+            t.setEndDate(java.time.LocalDateTime.now());
+            winner.setRank(winner.getRank() + 10);
+            userRepo.save(winner);
             repo.save(t);
             return;
         }
@@ -402,6 +407,17 @@ public class TournamentServiceImpl implements TournamentService {
             newMatch.setStato(MatchStatus.PENDING);
             matchRepo.save(newMatch);
         }
+    }
+
+    @Override
+    public java.util.Map<String, Object> getPlayerOfTheMonth(){
+        List<Object[]> results = repo.findPlayerofTheMonth();
+        if(results.isEmpty()){return java.util.Map.of("username", "Nessuno", "points", 0);}
+        Object[]top =  results.get(0);
+        String username = (String) top[0];
+        long wins = ((Number) top[1]).longValue();
+
+        return java.util.Map.of("username", username, "points", wins*10);
     }
 }
 
