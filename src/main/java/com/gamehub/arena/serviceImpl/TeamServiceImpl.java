@@ -75,7 +75,7 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(() -> new RuntimeException("Owner non trovato"));
 
         team.setOwner(owner);
-        team.getMembers().add(owner); // il creatore entra automaticamente nel team
+        team.getMembers().add(owner); 
 
         return team;
     }

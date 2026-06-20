@@ -37,7 +37,6 @@ public class RawgService {
                 GameExternalDTO dto = new GameExternalDTO();
                 dto.setTitle(node.get("name").asText());
 
-                // Le API restituiscono l'URL assoluto, perfetto per il frontend!
                 dto.setBackgroundImage(node.has("background_image") && !node.get("background_image").isNull()
                         ? node.get("background_image").asText() : null);
 
@@ -45,7 +44,6 @@ public class RawgService {
                 dto.setReleased(node.has("released") && !node.get("released").isNull()
                         ? node.get("released").asText() : "N/D");
 
-                // RISOLTO: Modificato "genere" in "genres" (come previsto dall'API)
                 if (node.has("genres") && node.get("genres").size() > 0) {
                     dto.setGenere(node.get("genres").get(0).get("name").asText());
                 } else {
@@ -54,7 +52,6 @@ public class RawgService {
 
                 int gameId = node.get("id").asInt();
 
-                // Passiamo anche il titolo per generare il link YouTube di emergenza
                 String trailerUrl = fetchTrailer(gameId, dto.getTitle());
                 dto.setTrailerUrl(trailerUrl);
 

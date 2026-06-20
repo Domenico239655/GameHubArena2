@@ -41,8 +41,8 @@ public class AdminController {
 
         return ResponseEntity.ok(stats);
     }
-    @PutMapping("/promote/{username}")
-    public ResponseEntity<?> promoteToAdmin(@PathVariable String username) {
+    @PutMapping("/promote-organizer/{username}")
+    public ResponseEntity<?> promoteToOrganizer(@PathVariable String username) {
         Optional<User> userOptional = userRepository.findByUsername(username);
 
         if (userOptional.isEmpty()) {
@@ -51,14 +51,18 @@ public class AdminController {
 
         User user = userOptional.get();
 
-        if ("ADMIN".equals(user.getRole())) {
-            return ResponseEntity.badRequest().body("L'utente è già un Amministratore.");
+        if (Role.ORGANIZER.equals(user.getRole())) {
+            return ResponseEntity.badRequest().body("L'utente è già un Organizzatore.");
         }
 
-        user.setRole(Role.valueOf("ADMIN"));
+        if (Role.ADMIN.equals(user.getRole())) {
+            return ResponseEntity.badRequest().body("Operazione negata: L'utente è un ADMIN.");
+        }
+
+        user.setRole(Role.ORGANIZER);
         userRepository.save(user);
 
-        return ResponseEntity.ok("Utente " + username + " promosso ad ADMIN con successo!");
+        return ResponseEntity.ok("Utente " + username + " promosso ad ORGANIZER con successo!");
     }
 
     @DeleteMapping("/delete/{username}")
@@ -75,7 +79,6 @@ public class AdminController {
 
             if (currentAdminUsername.equals(targetUser.getUsername())) {
                 userRepository.delete(targetUser);
-                // Mandiamo un messaggio "in codice" speciale ad Angular per dirgli di sloggare
                 return ResponseEntity.ok("SELF_DELETED");
             }
             if("ADMIN".equals(targetUser.getRole())){
@@ -135,12 +138,10 @@ public class AdminController {
 
             User targetUser = targetUserOpt.get();
 
-            // Controllo di sicurezza: ha senso sbannarlo?
             if (!Role.BANNED.equals(targetUser.getRole())) {
                 return ResponseEntity.badRequest().body("L'utente '" + username + "' non è attualmente bannato.");
             }
 
-            // Riportiamo l'utente al ruolo originale (PLAYER)
             targetUser.setRole(Role.PLAYER);
             userRepository.save(targetUser);
 

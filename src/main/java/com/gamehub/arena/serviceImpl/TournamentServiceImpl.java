@@ -56,7 +56,9 @@ public class TournamentServiceImpl implements TournamentService {
                 try {
                     // Genera gli accoppiamenti casuali
                     this.generateBracket(t.getId());
-                    t = repo.findById(id).orElse(t);
+                    // Cambia lo stato per bloccare nuove iscrizioni
+                    //t.setStatus("IN_CORSO");
+                    //repo.save(t);
                 } catch (Exception e) {
                     System.out.println("Nessun giocatore iscritto o errore: " + e.getMessage());
                 }
@@ -125,30 +127,14 @@ public class TournamentServiceImpl implements TournamentService {
         if (t.getParticipants() != null) {
             dto.setParticipantsCount(t.getParticipants().size());
 
-            // USIAMO IL NUOVO TeamResponseDTO e calcoliamo i punti (10 per vittoria)
-            List<Match> matches = matchRepo.findByTournamentIdOrderByRoundNumberAsc(t.getId());
-
+            // USIAMO IL NUOVO TeamResponseDTO
             List<TeamResponseDTO> mappedTeams = t.getParticipants().stream().map(user -> {
                 TeamResponseDTO teamDto = new TeamResponseDTO();
                 teamDto.setId(user.getId());
                 teamDto.setName(user.getUsername());
-                
-                int score = 0;
-                for (Match m : matches) {
-                    if (m.getStato() == MatchStatus.FINISHED) {
-                        if (m.getPlayer1() != null && m.getPlayer1().getId().equals(user.getId()) && m.getScorePlayer1() != null && m.getScorePlayer1() == 1) {
-                            score += 10;
-                        } else if (m.getPlayer2() != null && m.getPlayer2().getId().equals(user.getId()) && m.getScorePlayer2() != null && m.getScorePlayer2() == 1) {
-                            score += 10;
-                        }
-                    }
-                }
-                
-                teamDto.setScore(score);
+                teamDto.setScore(0); // Score di default
                 return teamDto;
-            })
-            .sorted((t1, t2) -> Integer.compare(t2.getScore(), t1.getScore()))
-            .toList();
+            }).toList();
 
             dto.setTeams(mappedTeams);
         } else {
@@ -165,7 +151,6 @@ public class TournamentServiceImpl implements TournamentService {
         } else { dto.setRegistrationOpen(true);}
 
         dto.setRating(t.getRating() != null ? t.getRating() : 0.0);
-        dto.setStatus(t.getStatus());
 
         return dto;
     }
@@ -202,27 +187,22 @@ public class TournamentServiceImpl implements TournamentService {
 
     @Override
     public synchronized void generateBracket(Long tournamentId) {
-        // LEGGERE LO STATO DIRETTAMENTE DAL DB (Bypassa la cache di Hibernate)
-        String realStatus = repo.getStatusById(tournamentId);
-        if (!"ISCRIZIONI_APERTE".equals(realStatus)) {
-            return;
-        }
-
         Tournament t = repo.findById(tournamentId)
                 .orElseThrow(()-> new RuntimeException("Torneo non trovato!"));
-        List<User> players = new ArrayList<>(t.getParticipants());
-        //Se non ci sono almeno 2 partecipanti, annulla!
-        if (players.size() < 2) {
-            t.setStatus("ANNULLATO");
-            repo.save(t);
+
+        if (!"ISCRIZIONI_APERTE".equals(t.getStatus())) {
             return;
         }
         t.setStatus("IN_CORSO");
         repo.save(t);
+        List<User> players = new ArrayList<>(t.getParticipants());
 
         java.util.Collections.shuffle(players);
 
         int size = players.size();
+        if (size == 0) {
+            throw new RuntimeException("Nessun partecipante iscritto al torneo!");
+        }
 
         int nextPowerOfTwo = 1;
         while(nextPowerOfTwo < size) nextPowerOfTwo*=2;
@@ -235,15 +215,7 @@ public class TournamentServiceImpl implements TournamentService {
             m.setPlayer1(players.get(i));
             m.setPlayer2(players.get(i + 1));
             m.setRoundNumber(1);
-            if (m.getPlayer2() == null) {
-                // Se l'avversario è un fantasma, il Giocatore 1 vince a tavolino
-                m.setScorePlayer1(1);
-                m.setScorePlayer2(0);
-                m.setStato(MatchStatus.FINISHED);
-            } else {
-                // Partita normale, resta in attesa di essere giocata
-                m.setStato(MatchStatus.PENDING);
-            }
+            m.setStato(MatchStatus.PENDING);
 
             matchRepo.save(m);
         }
@@ -330,16 +302,7 @@ public class TournamentServiceImpl implements TournamentService {
             return java.util.Map.of("message", "Nessun match attivo trovato.");
         }
         java.util.Map<String, Object> response = new java.util.HashMap<>();
-        
-        int size = t.getParticipants().size();
-        if (size < 2) size = 2;
-        int nextPowerOfTwo = 1;
-        while(nextPowerOfTwo < size) nextPowerOfTwo*=2;
-        int totalRounds = Integer.numberOfTrailingZeros(nextPowerOfTwo);
-        
         response.put("matchId", myMatch.getId());
-        response.put("roundNumber", myMatch.getRoundNumber());
-        response.put("totalRounds", totalRounds);
         response.put("matchStatus", myMatch.getStato().name()); // PENDING, FINISHED o DISPUTED
         boolean hasReported = false;
         boolean isWinner = false;
@@ -359,10 +322,6 @@ public class TournamentServiceImpl implements TournamentService {
         response.put("hasReported", hasReported);
         response.put("isWinner", isWinner);
 
-        // Aggiungi screenshot url se disponibili
-        response.put("myScreenshot", myMatch.getPlayer1() != null && myMatch.getPlayer1().getId().equals(userId) ? myMatch.getScreenshotPlayer1() : myMatch.getScreenshotPlayer2());
-        response.put("opponentScreenshot", myMatch.getPlayer1() != null && myMatch.getPlayer1().getId().equals(userId) ? myMatch.getScreenshotPlayer2() : myMatch.getScreenshotPlayer1());
-
         if (opponent != null) {
             response.put("opponentName", opponent.getUsername());
             String opponentGameId = playerIdRepo.findByTournamentAndUser(t, opponent)
@@ -370,35 +329,6 @@ public class TournamentServiceImpl implements TournamentService {
             response.put("opponentGameId", opponentGameId);
         }
         return response;
-    }
-
-    @Override
-    public String saveScreenshot(Long matchId, Long userId, org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
-        Match m = matchRepo.findById(matchId).orElseThrow(() -> new RuntimeException("Match non trovato"));
-        if (m.getStato() != MatchStatus.DISPUTED) {
-            throw new RuntimeException("Puoi caricare uno screenshot solo se il match è contestato!");
-        }
-
-        java.nio.file.Path uploadPath = java.nio.file.Paths.get(System.getProperty("user.dir"), "uploads");
-        if (!java.nio.file.Files.exists(uploadPath)) {
-            java.nio.file.Files.createDirectories(uploadPath);
-        }
-
-        String filename = "match-" + matchId + "-user-" + userId + "-" + file.getOriginalFilename();
-        java.nio.file.Path filePath = uploadPath.resolve(filename);
-        file.transferTo(filePath.toFile()); // Meglio usare toFile() per evitare bug con percorsi relativi di Tomcat
-
-        String url = "/api/tournaments/uploads/" + filename;
-
-        if (m.getPlayer1() != null && m.getPlayer1().getId().equals(userId)) {
-            m.setScreenshotPlayer1(url);
-        } else if (m.getPlayer2() != null && m.getPlayer2().getId().equals(userId)) {
-            m.setScreenshotPlayer2(url);
-        } else {
-            throw new RuntimeException("Non fai parte di questo match!");
-        }
-        matchRepo.save(m);
-        return url;
     }
 
     @Override
