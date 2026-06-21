@@ -194,8 +194,8 @@ public class TournamentServiceImpl implements TournamentService {
         java.util.Collections.shuffle(players);
 
         int size = players.size();
-        if (size == 0) {
-            throw new RuntimeException("Nessun partecipante iscritto al torneo!");
+        if (size < 2) {
+            throw new RuntimeException("Minimo 2 partecipanti necessari per il torneo!");
         }
 
         int nextPowerOfTwo = 1;
@@ -206,10 +206,24 @@ public class TournamentServiceImpl implements TournamentService {
         for(int i = 0; i < players.size(); i += 2){
             Match m = new Match();
             m.setTournament(t);
-            m.setPlayer1(players.get(i));
-            m.setPlayer2(players.get(i + 1));
+            User p1 = players.get(i);
+            User p2 = players.get(i + 1);
+            m.setPlayer1(p1);
+            m.setPlayer2(p2);
             m.setRoundNumber(1);
-            m.setStato(MatchStatus.PENDING);
+
+            if (p1 == null || p2 == null) {
+                m.setStato(MatchStatus.FINISHED);
+                if (p1 != null) {
+                    m.setScorePlayer1(1);
+                    m.setScorePlayer2(0);
+                } else if (p2 != null) {
+                    m.setScorePlayer1(0);
+                    m.setScorePlayer2(1);
+                }
+            } else {
+                m.setStato(MatchStatus.PENDING);
+            }
 
             matchRepo.save(m);
         }

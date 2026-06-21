@@ -12,9 +12,13 @@ import org.springframework.security.core.Authentication;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
+// TIPS: @RestController assicura che ogni metodo ritorni un oggetto serializzato in JSON (o XML),
+// soddisfando il requisito di usare JSON per il trasferimento dati col frontend.
 @RestController
 @RequestMapping("/api/tournaments")
 public class TournamentController {
+    // TIPS: Iniezione delle dipendenze. Il Controller non dovrebbe mai contenere logica di business.
+    // Funziona solo da smistatore di richieste HTTP verso il Service.
     private final TournamentService service;
     private final TournamentService tournamentService;
 
@@ -23,6 +27,7 @@ public class TournamentController {
         this.tournamentService = tournamentService;
     }
 
+    // TIPS: Metodo POST (creazione). @RequestBody mappa il JSON in entrata nell'oggetto DTO.
     @PostMapping
     public TournamentResponseDTO create(@RequestBody TournamentCreateDTO dto, Authentication authentication){
         String username = authentication.getName();
@@ -34,6 +39,7 @@ public class TournamentController {
         return service.getAll();
     }
 
+    // TIPS: Metodo GET. @PathVariable serve per estrarre l'ID direttamente dall'URL (es. /api/tournaments/1).
     @GetMapping("/{id}")
     public TournamentResponseDTO getById(@PathVariable Long id){
 
@@ -50,6 +56,7 @@ public class TournamentController {
         tournamentService.generateBracket(tournamentId);
     }
 
+    // TIPS: Esempio di utilizzo di @RequestParam. I parametri vengono passati nella query string: ?userId=1&score=5.
     @PostMapping("/{id}/rate")
     public ResponseEntity<?> rateTournament(@PathVariable Long id, @RequestParam Long userId, @RequestParam int score) {
         try {

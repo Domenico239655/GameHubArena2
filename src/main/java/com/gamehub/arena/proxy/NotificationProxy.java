@@ -15,10 +15,15 @@ import java.util.List;
 
 @Primary
 @Service
+// TIPS: Pattern Proxy. Questa classe implementa la stessa interfaccia del "Real Subject" (NotificationService).
+// Viene usata per intercettare la chiamata, aggiungere logica extra (es. WebSocket e validazione) 
+// e poi delegare il lavoro all'oggetto reale. Un'architettura perfetta per gestire il lazy loading o proxy strutturali.
 public class NotificationProxy implements NotificationService {
 
     @Autowired
     private NotificationWebSocketController wsController;
+    
+    // TIPS: Il Proxy mantiene sempre un riferimento al "Subject Reale" per delegargli l'operazione principale
     private final NotificationServiceImpl real;
 
     public NotificationProxy(NotificationServiceImpl real){
@@ -27,10 +32,12 @@ public class NotificationProxy implements NotificationService {
 
     @Override
     public NotificationResponseDTO send(NotificationCreateDTO dto){
+        // TIPS: Logica aggiuntiva del proxy: pre-validazione
         if(dto.getMessage() == null || dto.getMessage().isBlank()){
             throw new RuntimeException("Messaggio vuoto non consentito");
         }
 
+        // TIPS: Delega al subject reale
         NotificationResponseDTO saved = real.send(dto);
 
         NotificationDTO wsDto = new NotificationDTO();

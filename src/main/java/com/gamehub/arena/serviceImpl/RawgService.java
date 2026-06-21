@@ -13,6 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+// TIPS: Integrazione API Esterne (requisito da max 3 punti).
+// Questa classe gestisce la comunicazione con un servizio di terze parti (RAWG API).
 @Service
 public class RawgService {
 
@@ -27,6 +29,7 @@ public class RawgService {
 
     public List<GameExternalDTO> searchGames(String query) {
         String url = apiUrl + "/games?search={query}&key={apiKey}";
+        // TIPS: RestTemplate viene usato da Spring per effettuare richieste HTTP (GET, POST, ecc.) verso API esterne.
         String response = restTemplate.getForObject(url, String.class, query, apiKey);
         List<GameExternalDTO> results = new ArrayList<>();
 

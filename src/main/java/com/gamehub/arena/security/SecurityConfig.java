@@ -31,6 +31,8 @@ public class SecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
+    // TIPS: Configurazione principale della sicurezza.
+    // Disabilitiamo CSRF perché usiamo JWT (stateless) invece delle classiche sessioni basate su cookie.
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
@@ -55,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                // TIPS: Impostiamo la gestione della sessione come STATELESS.
+                // Il server non ricorderà l'utente tra una richiesta e l'altra; ogni richiesta deve contenere il token JWT.
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
@@ -73,6 +77,8 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    // TIPS: Configurazione CORS (Cross-Origin Resource Sharing).
+    // Permette al frontend (localhost:4200) di comunicare col backend senza essere bloccato dal browser.
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

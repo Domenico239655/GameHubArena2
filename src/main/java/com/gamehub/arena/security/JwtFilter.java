@@ -13,6 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+// TIPS: Questo filtro scatta prima di ogni singola richiesta HTTP in arrivo al backend.
+// Il suo scopo è estrarre il token JWT dall'header e validarlo.
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -35,6 +37,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        // TIPS: Estrae l'header "Authorization". Se contiene "Bearer " seguito dal token, lo estrapola.
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

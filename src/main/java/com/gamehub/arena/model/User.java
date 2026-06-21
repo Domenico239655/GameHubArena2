@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import java.util.HashSet;
 import java.util.Set;
 
+// TIPS: Esempio di Entity JPA che mappa una tabella sul database.
+// Hibernate crea dei Proxy attorno a queste entità per gestire il Lazy Loading delle collezioni.
 @Entity
 @Data
 @NoArgsConstructor
@@ -29,6 +31,8 @@ public class User {
     private int rank;
     private int elo = 1000;
 
+    // TIPS: Relazione Molti-a-Molti. Di default, le relazioni @ManyToMany e @OneToMany sono caricate in modo 'Lazy'.
+    // Quando si accede a 'personalLibrary', Hibernate usa un Pattern Proxy per eseguire la query solo in quel momento.
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
             name= "user_games",
