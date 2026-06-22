@@ -7,6 +7,7 @@ import com.gamehub.arena.model.Game;
 import com.gamehub.arena.service.GameService;
 import com.gamehub.arena.serviceImpl.RawgService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -39,5 +40,15 @@ public class GameController {
     @GetMapping("/search")
     public List<GameExternalDTO> search(@RequestParam String query){
         return rawgService.searchGames(query);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id){
+        try {
+            service.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Errore durante l'eliminazione. Il gioco potrebbe essere collegato a tornei o librerie di utenti.");
+        }
     }
 }

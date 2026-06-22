@@ -92,4 +92,10 @@ public class GameServiceImpl implements GameService {
     public Optional<Game> findEntityById(Long id) {
         return repo.findById(id);
     }
+
+    @Override
+    public void delete(Long id) {
+        Game game = findEntityById(id).orElseThrow(() -> new RuntimeException("Gioco non trovato"));
+        repo.delete(game);
+    }
 }

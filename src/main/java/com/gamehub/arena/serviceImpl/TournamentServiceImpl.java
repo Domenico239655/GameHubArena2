@@ -35,15 +35,24 @@ public class TournamentServiceImpl implements TournamentService {
         this.playerIdRepo = playerIdRepo;
     }
 
+    // INIZIO: Logica creazione Tornei
     @Override
     public TournamentResponseDTO create(TournamentCreateDTO dto, String username) {
+        // Recupera l'utente organizzatore che sta creando il torneo
         User organizer = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Organizzatore non trovato!"));
+        
+        // Mappa il DTO (dati in ingresso) nell'entità Tournament
         Tournament t = fromDTO(dto);
-        t.setOrganizer(organizer);
+        t.setOrganizer(organizer); // Assegna l'organizzatore
+        
+        // Salva il torneo nel database
         repo.save(t);
+        
+        // Ritorna la risposta mappata in DTO
         return toDTO(t);
     }
+    // FINE: Logica creazione Tornei
 
     @Override
     public TournamentResponseDTO getById(Long id) {
@@ -121,13 +130,29 @@ public class TournamentServiceImpl implements TournamentService {
         dto.setDescription(t.getDescription());
         if (t.getParticipants() != null) {
             dto.setParticipantsCount(t.getParticipants().size());
+            List<Match> matches = matchRepo.findByTournamentIdOrderByRoundNumberAsc(t.getId());
+
             List<TeamResponseDTO> mappedTeams = t.getParticipants().stream().map(user -> {
                 TeamResponseDTO teamDto = new TeamResponseDTO();
                 teamDto.setId(user.getId());
                 teamDto.setName(user.getUsername());
-                teamDto.setScore(0);
+                
+                int score = 0;
+                for (Match m : matches) {
+                    if (m.getStato() == MatchStatus.FINISHED) {
+                        if (m.getPlayer1() != null && m.getPlayer1().getId().equals(user.getId()) && m.getScorePlayer1() != null && m.getScorePlayer1() == 1) {
+                            score += 10;
+                        } else if (m.getPlayer2() != null && m.getPlayer2().getId().equals(user.getId()) && m.getScorePlayer2() != null && m.getScorePlayer2() == 1) {
+                            score += 10;
+                        }
+                    }
+                }
+                
+                teamDto.setScore(score);
                 return teamDto;
-            }).toList();
+            })
+            .sorted((t1, t2) -> Integer.compare(t2.getScore(), t1.getScore()))
+            .toList();
 
             dto.setTeams(mappedTeams);
         } else {
@@ -374,11 +399,16 @@ public class TournamentServiceImpl implements TournamentService {
         return url;
     }
 
+    // INIZIO: Logica salvataggio risultato match
     @Override
     public void reportMatchResult(Long matchId, Long userId, boolean isWinner) {
+        // 1. Recupera il match dal DB
         Match m = matchRepo.findById(matchId).orElseThrow(() -> new RuntimeException("Match non trovato"));
+        
+        // 2. Converte il booleano isWinner in punteggio (1 vittoria, 0 sconfitta)
         int score = isWinner ? 1 : 0;
 
+        // 3. Assegna il punteggio al giocatore corretto
         if (m.getPlayer1() != null && m.getPlayer1().getId().equals(userId)) {
             m.setScorePlayer1(score);
         } else if (m.getPlayer2() != null && m.getPlayer2().getId().equals(userId)) {
@@ -386,20 +416,29 @@ public class TournamentServiceImpl implements TournamentService {
         } else {
             throw new RuntimeException("Non fai parte di questo match!");
         }
+        
+        // 4. Se ENTRAMBI i giocatori hanno inserito il risultato, verifichiamo la coerenza
         if (m.getScorePlayer1() != null && m.getScorePlayer2() != null) {
+            // Se uno dichiara di aver vinto e l'altro di aver perso, il match è concluso regolarmente (FINISHED)
             if (m.getScorePlayer1() == 1 && m.getScorePlayer2() == 0) {
                 m.setStato(MatchStatus.FINISHED);
             } else if (m.getScorePlayer2() == 1 && m.getScorePlayer1() == 0) {
                 m.setStato(MatchStatus.FINISHED);
             } else {
+                // Se entrambi dichiarano di aver vinto (o perso), il risultato è contestato (DISPUTED)
                 m.setStato(MatchStatus.DISPUTED);
             }
         }
+        
+        // 5. Salva lo stato aggiornato del match
         matchRepo.save(m);
+        
+        // 6. Se il match si è concluso senza dispute, prova a generare il turno successivo
         if (m.getStato() == MatchStatus.FINISHED) {
             checkAndGenerateNextRound(m.getTournament().getId(), m.getRoundNumber());
         }
     }
+    // FINE: Logica salvataggio risultato match
 
     private void checkAndGenerateNextRound(Long tournamentId, int currentRound) {
         List<Match> allMatches = matchRepo.findByTournamentIdOrderByRoundNumberAsc(tournamentId);

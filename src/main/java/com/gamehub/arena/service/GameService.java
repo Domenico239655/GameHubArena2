@@ -14,5 +14,6 @@ public interface GameService {
     GameResponseDTO toDTO(Game game);
     Game fromDTO(GameCreateDTO dto);
     Optional<Game> findEntityById(Long id);
+    void delete(Long id);
 
 }
